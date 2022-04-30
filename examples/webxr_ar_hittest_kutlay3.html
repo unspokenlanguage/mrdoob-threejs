@@ -118,16 +118,20 @@
 
 						const loader = new GLTFLoader().setPath( 'models/gltf/Lantern/glTF/' );
 						loader.load( 'Lantern.gltf', function ( gltf ) {
-							GlbObject = gltf.scene;
+							//GlbObject = gltf.scene;
 							//THREE.Box3.setFromObject(gltf.scene)
-							GlbObject.scale.multiplyScalar(.3);
-							GlbObject.position.set( 0, -5, - 10 ).applyMatrix4( controller.matrixWorld );
-							GlbObject.rotation.set(0, -45, 0) 
+							// GlbObject.scale.multiplyScalar(1);
+							// GlbObject.position.set( 0, 0, - 10 ).applyMatrix4( controller.matrixWorld );
+							// GlbObject.rotation.set(0, -45, 0) 
+
+							const model = gltf.scene;
+							model.position.set( 0, -5, -9 );
+							model.scale.set( 0.3, 0.3, 0.3 );
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
 							console.log(gltf.scene.children)
 							//cubes77.push(gltf.scene)
-							console.log(GlbObject)
-							scene.add( gltf.scene );
+							console.log(model)
+							scene.add( model );
 
 							render();
 
