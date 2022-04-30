@@ -116,8 +116,8 @@
 
 						// model
 
-						const loader = new GLTFLoader().setPath( 'models/gltf/Lantern/glTF/' );
-						loader.load( 'Lantern.gltf', function ( gltf ) {
+						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/glTF/' );
+						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
 							//GlbObject = gltf.scene;
 							//THREE.Box3.setFromObject(gltf.scene)
 							// GlbObject.scale.multiplyScalar(1);
@@ -125,10 +125,10 @@
 							// GlbObject.rotation.set(0, -45, 0) 
 
 							const model = gltf.scene;
-							model.position.set( 0, -5, -9 );
-							model.scale.set( 0.3, 0.3, 0.3 );
+							model.position.set( 0, 0, -9 );
+							model.scale.set( 1, 1, 1 );
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
-							console.log(gltf.scene.children)
+							//console.log(gltf.scene)
 							//cubes77.push(gltf.scene)
 							console.log(model)
 							scene.add( model );
