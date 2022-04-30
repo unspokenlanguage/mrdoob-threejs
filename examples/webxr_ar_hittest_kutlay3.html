@@ -79,6 +79,39 @@
 
 				//
 
+				new RGBELoader()
+					.setPath( 'textures/equirectangular/' )
+					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+
+						texture.mapping = THREE.EquirectangularReflectionMapping;
+
+						//scene.background = texture;
+						scene.environment = texture;
+
+						render();
+
+						// model
+
+						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/glTF/' );
+						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
+							const model = gltf.scene;
+							model.position.set( 0, 0, -9 );
+							model.scale.set( 1, 1, 1 );
+							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
+							//console.log(gltf.scene)
+							//cubes77.push(gltf.scene)
+							console.log(model)
+
+							scene.add( model );
+
+							render();
+
+						} );
+
+					} );
+
+			
+
 				const geometry = new THREE.CylinderGeometry( 0.1, 0.1, 0.2, 32 ).translate( 0, 0.1, 0 );
 
 				function onSelect() {
@@ -112,37 +145,6 @@
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
-
-			new RGBELoader()
-					.setPath( 'textures/equirectangular/' )
-					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
-
-						texture.mapping = THREE.EquirectangularReflectionMapping;
-
-						//scene.background = texture;
-						scene.environment = texture;
-
-						render();
-
-						// model
-
-						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/glTF/' );
-						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
-							const model = gltf.scene;
-							model.position.set( 0, 0, -9 );
-							model.scale.set( 1, 1, 1 );
-							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
-							//console.log(gltf.scene)
-							//cubes77.push(gltf.scene)
-							console.log(model)
-
-							scene.add( model );
-
-							render();
-
-						} );
-
-					} );
 
 			function onWindowResize() {
 
