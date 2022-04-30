@@ -27,9 +27,11 @@
 		<script type="module">
 
 			import * as THREE from 'three';
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { ARButton } from './jsm/webxr/ARButton.js';
 			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
+
 
 			let container;
 			let camera, scene, renderer;
@@ -63,6 +65,13 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.xr.enabled = true;
 				container.appendChild( renderer.domElement );
+
+				const controls = new OrbitControls( camera, renderer.domElement );
+				controls.addEventListener( 'change', render ); // use if there is no animation loop
+				controls.minDistance = 2;
+				controls.maxDistance = 10;
+				controls.target.set( 0, 0, - 9 );
+				controls.update();
 
 				//
 
@@ -103,6 +112,7 @@
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
+
 			new RGBELoader()
 					.setPath( 'textures/equirectangular/' )
 					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
@@ -118,12 +128,6 @@
 
 						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/glTF/' );
 						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
-							//GlbObject = gltf.scene;
-							//THREE.Box3.setFromObject(gltf.scene)
-							// GlbObject.scale.multiplyScalar(1);
-							// GlbObject.position.set( 0, 0, - 10 ).applyMatrix4( controller.matrixWorld );
-							// GlbObject.rotation.set(0, -45, 0) 
-
 							const model = gltf.scene;
 							model.position.set( 0, 0, -9 );
 							model.scale.set( 1, 1, 1 );
@@ -131,6 +135,7 @@
 							//console.log(gltf.scene)
 							//cubes77.push(gltf.scene)
 							console.log(model)
+
 							scene.add( model );
 
 							render();
@@ -138,7 +143,6 @@
 						} );
 
 					} );
-					
 
 			function onWindowResize() {
 
