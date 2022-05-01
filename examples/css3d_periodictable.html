@@ -272,9 +272,9 @@
 					element.appendChild( details );
 
 					const objectCSS = new CSS3DObject( element );
-					objectCSS.position.x = Math.random() * 4000 - 2000;
-					objectCSS.position.y = Math.random() * 4000 - 2000;
-					objectCSS.position.z = Math.random() * 4000 - 2000;
+					objectCSS.position.x = 0;
+					objectCSS.position.y = 0;
+					objectCSS.position.z = -2;
 					scene.add( objectCSS );
 
 					objects.push( objectCSS );
@@ -284,7 +284,9 @@
 					const object = new THREE.Object3D();
 					object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
 					object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
-
+					if(i == 0){
+						console.log('first object.position.x ' + object.position.x + 'first object.position.y ' + object.position.y + 'first object.position.z ' + object.position.z )
+					}
 					targets.table.push( object );
 
 				}
@@ -386,8 +388,8 @@
 
 				} );
 
-				transform( targets.table, 2000 );
-
+				//transform( targets.table, 2000 );
+				document.getElementById( 'table' );
 				//
 
 				window.addEventListener( 'resize', onWindowResize );
@@ -399,10 +401,13 @@
 				TWEEN.removeAll();
 				
 				for ( let i = 0; i < objects.length; i ++ ) {
-
+					
 					const object = objects[ i ];
 					const target = targets[ i ];
 
+					if(i == 0){
+						console.log('transformed object.position.x ' + objects[ i ].position.x + 'transformed object.position.y ' + objects[ i ].position.y + 'transformed object.position.z ' + objects[ i ].position.z )
+					}
 					new TWEEN.Tween( object.position )
 						.to( { x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration )
 						.easing( TWEEN.Easing.Exponential.InOut )

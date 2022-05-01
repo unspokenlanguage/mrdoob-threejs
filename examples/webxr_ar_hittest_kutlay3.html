@@ -12,7 +12,8 @@
 
 			#menu {
 				position: absolute;
-				bottom: 20px;
+				left : 0px;
+				bottom: 100px;
 				width: 100%;
 				text-align: center;
 			}
@@ -125,6 +126,7 @@
 			let controls;
 			const stats = Stats()
 			let GlbObject;
+			const Cssobjects = [];
 			let reticle;
 			var raycaster, mouse = { x : 0, y : 0 };
 			let monkey;
@@ -149,6 +151,10 @@
 				scene.add( light );
 
 				//
+
+				// renderer = new CSS3DRenderer();
+				// renderer.setSize( window.innerWidth, window.innerHeight );
+				
 				
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
@@ -159,6 +165,8 @@
 				container.appendChild( renderer.domElement );
 
 			    controls = new OrbitControls( camera, renderer.domElement );
+				document.getElementById( 'container' ).appendChild( renderer.domElement );
+
 				controls.addEventListener( 'change', render ); // use if there is no animation loop
 				controls.minDistance = 2;
 				controls.maxDistance = 10;
@@ -166,35 +174,8 @@
 				controls.update();
 
 
-				const buttonTable = document.getElementById( 'table' );
-				buttonTable.addEventListener( 'click', function () {
-					console.log('clicked | active obj -> ' + GlbObject + ' object name -> ' + GlbObject.name)
-					//GlbObject.position.x = -1
-					transform( GlbObject, 2000 );
-
-				} );
-
-				const buttonSphere = document.getElementById( 'sphere' );
-				buttonSphere.addEventListener( 'click', function () {
-
-					transform2( GlbObject, 2000 );
-
-				} );
-
-				const buttonHelix = document.getElementById( 'helix' );
-				buttonHelix.addEventListener( 'click', function () {
-
-					transform3( GlbObject, 2000 );
-
-				} );
-
-				const buttonGrid = document.getElementById( 'grid' );
-				buttonGrid.addEventListener( 'click', function () {
-
-					transform4( GlbObject, 2000 );
-
-				} );
 				//
+		
 
 				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
@@ -246,6 +227,74 @@
 						} );
 
 					} );
+
+
+				
+				const buttonTable = document.getElementById( 'table' );
+				buttonTable.addEventListener( 'click', function () {
+					console.log('clicked | active obj -> ' + GlbObject + ' object name -> ' + GlbObject.name)
+					//GlbObject.position.x = -1
+					transform( GlbObject, 2000 );
+
+				} );
+
+				const buttonSphere = document.getElementById( 'sphere' );
+				buttonSphere.addEventListener( 'click', function () {
+
+					transform2( GlbObject, 2000 );
+
+				} );
+
+				const buttonHelix = document.getElementById( 'helix' );
+				buttonHelix.addEventListener( 'click', function () {
+
+					transform3( GlbObject, 2000 );
+
+				} );
+
+				const buttonGrid = document.getElementById( 'grid' );
+				buttonGrid.addEventListener( 'click', function () {
+
+					transform4( GlbObject, 2000 );
+
+				} );
+
+				
+
+				const element = document.createElement( 'div' );
+				element.className = 'element';
+				element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+				const number = document.createElement( 'div' );
+				number.className = 'number';
+				number.textContent = 'test1';
+				element.appendChild( number );
+
+				const symbol = document.createElement( 'div' );
+				symbol.className = 'symbol';
+				symbol.textContent = 'test1';
+				element.appendChild( symbol );
+
+				const details = document.createElement( 'div' );
+				details.className = 'details';
+				details.innerHTML = 'test3';
+				element.appendChild( details );
+
+				const objectCSS = new CSS3DObject( element );
+				objectCSS.position.x = 0;
+				objectCSS.position.y = 0;
+				objectCSS.position.z = 0;
+				
+				Cssobjects.push( objectCSS );
+
+				scene.add( objectCSS );
+
+				console.log('Cssobjects[0].position ->' + Cssobjects[0].position.x)
+
+				transformUIElement( 2000 );
+				
+
+				
 
 				new RGBELoader()
 				.setPath( 'textures/equirectangular/' )
@@ -427,6 +476,28 @@
 					*/
 				//}
 
+			}
+			function transformUIElement(duration){
+				const object = Cssobjects[0]
+				console.log('transformUIElement object pos x ' + object.position.x)
+
+				
+				new TWEEN.Tween( object.position )
+						.to( { x: object.position.x, y: object.position.y, z: object.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( object.rotation )
+					.to( { x: 0 , y: 0 , z: 0},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+			
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
 			}
 			function transform( activeObject, duration ) {
 
