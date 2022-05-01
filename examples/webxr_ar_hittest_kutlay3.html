@@ -110,7 +110,8 @@
 
 			import * as THREE from 'three';
 			import { TWEEN } from './jsm/libs/tween.module.min.js';
-			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import {Text} from 'https://unpkg.com/troika-three-text@0.39.2/dist/troika-three-text.esm.js?module';
+ 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { ARButton } from './jsm/webxr/ARButton.js';
 			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
@@ -126,6 +127,7 @@
 			let controls;
 			const stats = Stats()
 			let GlbObject;
+			let textObj;
 			const Cssobjects = [];
 			let reticle;
 			var raycaster, mouse = { x : 0, y : 0 };
@@ -134,6 +136,7 @@
 			let hitTestSourceRequested = false;
 			const clock = new THREE.Clock();
 			let model ;
+			let state1 = true;
 			init();
 			animate();
 
@@ -154,7 +157,6 @@
 
 				// renderer = new CSS3DRenderer();
 				// renderer.setSize( window.innerWidth, window.innerHeight );
-				
 				
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
@@ -222,18 +224,34 @@
 							scene.add( model );
 							GlbObject = model ;
 							console.log('Default OBJ -> ' + GlbObject.name)
+							
 							render();
 
 						} );
 
 					} );
 
+				textObj = new Text()
+				
 
+				// Set properties to configure:
+				textObj.text = 'Hello world!'
+				textObj.fontSize = 0.1
+				textObj.position.z = -0.099
+				textObj.position.x = 0
+				textObj.position.y = 0
+				textObj.color = 0x9966FF
+
+				// Update the rendering:
+				scene.add(textObj)
+				textObj.sync()
+				
 				
 				const buttonTable = document.getElementById( 'table' );
 				buttonTable.addEventListener( 'click', function () {
 					console.log('clicked | active obj -> ' + GlbObject + ' object name -> ' + GlbObject.name)
 					//GlbObject.position.x = -1
+					
 					transform( GlbObject, 2000 );
 
 				} );
@@ -291,7 +309,7 @@
 
 				console.log('Cssobjects[0].position ->' + Cssobjects[0].position.x)
 
-				transformUIElement( 2000 );
+				//transformUIElement( 2000 );
 				
 
 				
@@ -429,7 +447,8 @@
 					const p = intersects[i].point
 					console.log('point -> ' + p.x)
 					console.log('glb obj rot' + GlbObject.rotation.x + '-' + GlbObject.rotation.y + '-' + GlbObject.rotation.z + '-')
-					//transform( GlbObject, 2000 );
+					//state1 = true;
+					transform( GlbObject, 2000 );
 
 					
 					
@@ -481,18 +500,35 @@
 				const object = Cssobjects[0]
 				console.log('transformUIElement object pos x ' + object.position.x)
 
-				
-				new TWEEN.Tween( object.position )
+				if(state1){
+					new TWEEN.Tween( object.position )
 						.to( { x: object.position.x, y: object.position.y, z: object.position.z }, duration )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
 
-				new TWEEN.Tween( object.rotation )
-					.to( { x: 0 , y: 0 , z: 0},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
+					new TWEEN.Tween( object.rotation )
+						.to( { x: 0 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = false;
+				}
+				else{
+					new TWEEN.Tween( object.position )
+						.to( { x: 0, y: 0, z: -1 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+					new TWEEN.Tween( object.rotation )
+						.to( { x: 0 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = false;
+				}
+				
 			
 				new TWEEN.Tween( this )
 					.to( {}, duration * 2 )
@@ -501,17 +537,36 @@
 			}
 			function transform( activeObject, duration ) {
 
-				new TWEEN.Tween( activeObject.position )
-						.to( { x: activeObject.position.x -1, y: activeObject.position.y, z: activeObject.position.z - 2 }, duration )
+				if(state1){
+					new TWEEN.Tween( activeObject.position )
+						.to( { x: activeObject.position.x-1, y: activeObject.position.y, z: activeObject.position.z-3 }, duration )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
 
-				new TWEEN.Tween( activeObject.rotation )
-					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y+ 2 , z: activeObject.rotation.z},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
+					new TWEEN.Tween( activeObject.rotation )
+						.to( { x: 1 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = false;
+				}
+				else{
+					new TWEEN.Tween( activeObject.position )
+						.to( { x: 0, y: 0, z: -1 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+					new TWEEN.Tween( activeObject.rotation )
+						.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = true;
+				}
+				
+				console.log('state1 -> ' + state1)
 			
 				new TWEEN.Tween( this )
 					.to( {}, duration * 2 )
@@ -530,6 +585,18 @@
 
 				new TWEEN.Tween( activeObject.rotation )
 					.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( textObj.position )
+						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( textObj.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
 					.easing( TWEEN.Easing.Exponential.InOut )
 					.onUpdate( render )
 					.start();
@@ -555,6 +622,19 @@
 					.onUpdate( render )
 					.start();
 
+				new TWEEN.Tween( textObj.position )
+						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( textObj.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+			
+					
 				new TWEEN.Tween( this )
 					.to( {}, duration * 2 )
 					.onUpdate( render )
@@ -574,6 +654,20 @@
 					.easing( TWEEN.Easing.Exponential.InOut )
 					.onUpdate( render )
 					.start();
+
+				new TWEEN.Tween( textObj.position )
+						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( textObj.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+					
 
 				new TWEEN.Tween( this )
 					.to( {}, duration * 2 )
