@@ -397,7 +397,7 @@
 			function transform( targets, duration ) {
 
 				TWEEN.removeAll();
-
+				
 				for ( let i = 0; i < objects.length; i ++ ) {
 
 					const object = objects[ i ];
@@ -444,7 +444,7 @@
 			}
 
 			function render() {
-
+				console.log('render intitated')
 				renderer.render( scene, camera );
 
 			}

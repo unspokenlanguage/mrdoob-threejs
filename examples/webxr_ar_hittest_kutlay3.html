@@ -5,9 +5,90 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			a {
+				color: #8ff;
+			}
+
+			#menu {
+				position: absolute;
+				bottom: 20px;
+				width: 100%;
+				text-align: center;
+			}
+
+			.element {
+				width: 120px;
+				height: 160px;
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+				border: 1px solid rgba(127,255,255,0.25);
+				font-family: Helvetica, sans-serif;
+				text-align: center;
+				line-height: normal;
+				cursor: default;
+			}
+
+			.element:hover {
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.75);
+				border: 1px solid rgba(127,255,255,0.75);
+			}
+
+				.element .number {
+					position: absolute;
+					top: 20px;
+					right: 20px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+				}
+
+				.element .symbol {
+					position: absolute;
+					top: 40px;
+					left: 0px;
+					right: 0px;
+					font-size: 60px;
+					font-weight: bold;
+					color: rgba(255,255,255,0.75);
+					text-shadow: 0 0 10px rgba(0,255,255,0.95);
+				}
+
+				.element .details {
+					position: absolute;
+					bottom: 15px;
+					left: 0px;
+					right: 0px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+				}
+
+			button {
+				color: rgba(127,255,255,0.75);
+				background: transparent;
+				outline: 1px solid rgba(127,255,255,0.75);
+				border: 0px;
+				padding: 5px 10px;
+				cursor: pointer;
+			}
+
+			button:hover {
+				background-color: rgba(0,255,255,0.5);
+			}
+
+			button:active {
+				color: #000000;
+				background-color: rgba(0,255,255,0.75);
+			}
+		</style>
 	</head>
 	<body>
-
+		<div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> css3d - periodic table.</div>
+		<div id="container"></div>
+		<div id="menu">
+			<button id="table">ANM1</button>
+			<button id="sphere">ANM2</button>
+			<button id="helix">ANM3</button>
+			<button id="grid">ANM4</button>
+		</div>
 		<div id="info">
 			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - hit test<br/>(Chrome Android 81+2)
 		</div>
@@ -27,26 +108,35 @@
 		<script type="module">
 
 			import * as THREE from 'three';
+			import { TWEEN } from './jsm/libs/tween.module.min.js';
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { ARButton } from './jsm/webxr/ARButton.js';
 			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
-
+			import { CSS3DRenderer, CSS3DObject } from './jsm/renderers/CSS3DRenderer.js';
+			import Stats from './jsm/libs/stats.module.js'
 
 			let container;
+			let updatedPositionX;
+			let updatedPositionY;
+			let updatedPositionZ;
 			let camera, scene, renderer;
 			let controller;
+			let controls;
+			const stats = Stats()
 			let GlbObject;
 			let reticle;
-
+			var raycaster, mouse = { x : 0, y : 0 };
+			let monkey;
 			let hitTestSource = null;
 			let hitTestSourceRequested = false;
-
+			const clock = new THREE.Clock();
+			let model ;
 			init();
 			animate();
 
 			function init() {
-
+				document.body.appendChild(stats.dom)
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
@@ -59,25 +149,60 @@
 				scene.add( light );
 
 				//
+				
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
+				
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.xr.enabled = true;
 				container.appendChild( renderer.domElement );
 
-				const controls = new OrbitControls( camera, renderer.domElement );
+			    controls = new OrbitControls( camera, renderer.domElement );
 				controls.addEventListener( 'change', render ); // use if there is no animation loop
 				controls.minDistance = 2;
 				controls.maxDistance = 10;
 				controls.target.set( 0, 0, - 1 );
 				controls.update();
 
+
+				const buttonTable = document.getElementById( 'table' );
+				buttonTable.addEventListener( 'click', function () {
+					console.log('clicked | active obj -> ' + GlbObject + ' object name -> ' + GlbObject.name)
+					//GlbObject.position.x = -1
+					transform( GlbObject, 2000 );
+
+				} );
+
+				const buttonSphere = document.getElementById( 'sphere' );
+				buttonSphere.addEventListener( 'click', function () {
+
+					transform2( GlbObject, 2000 );
+
+				} );
+
+				const buttonHelix = document.getElementById( 'helix' );
+				buttonHelix.addEventListener( 'click', function () {
+
+					transform3( GlbObject, 2000 );
+
+				} );
+
+				const buttonGrid = document.getElementById( 'grid' );
+				buttonGrid.addEventListener( 'click', function () {
+
+					transform4( GlbObject, 2000 );
+
+				} );
 				//
 
 				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
 				//
+				raycaster = new THREE.Raycaster();
+    			renderer.domElement.addEventListener( 'click', raycast, false );
+				
+				var obj;
 
 				new RGBELoader()
 					.setPath( 'textures/equirectangular/' )
@@ -94,25 +219,37 @@
 
 						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/glTF/' );
 						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
-							const model = gltf.scene;
+
+							gltf.scene.traverse(function (child) {
+							if (child.isMesh) {
+								let m = child
+								monkey = m
+								console.log('monkey ->' + monkey)
+								model = monkey;
+								}
+							
+							})
+						    model = gltf.scene;
+							obj = gltf.scene;
 							model.position.set( 0, 0, -1 );
-							model.scale.set( 0.3, 0.3, 0.3 );
+							model.scale.set( 0.4, 0.4, 0.4 );
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
 							//console.log(gltf.scene)
 							//cubes77.push(gltf.scene)
 							console.log(model)
-
+							onlodinen(model)
 							scene.add( model );
-
+							GlbObject = model ;
+							console.log('Default OBJ -> ' + GlbObject.name)
 							render();
 
 						} );
 
 					} );
 
-					new RGBELoader()
-					.setPath( 'textures/equirectangular/' )
-					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+				new RGBELoader()
+				.setPath( 'textures/equirectangular/' )
+				.load( 'royal_esplanade_1k.hdr', function ( texture ) {
 
 						texture.mapping = THREE.EquirectangularReflectionMapping;
 
@@ -141,8 +278,21 @@
 
 					} );
 
-			
+				renderer.domElement.addEventListener("click", onclick, true);
 
+
+				
+				function onlodinen(modelobj){
+					console.log('onloadinen girildi')
+					console.log('onloadinen modelobj -> ' + modelobj)
+					//modelobj.scale.x = 0.1
+					// modelobj.scale.x = 1;
+					// modelobj.scale.y = 1;
+					// modelobj.scale.z = 1;
+					
+
+					//buildUp(modelobj).start();
+				}
 				const geometry = new THREE.CylinderGeometry( 0.1, 0.1, 0.2, 32 ).translate( 0, 0.1, 0 );
 
 				function onSelect() {
@@ -159,6 +309,8 @@
 
 				}
 
+				
+
 				controller = renderer.xr.getController( 0 );
 				controller.addEventListener( 'select', onSelect );
 				scene.add( controller );
@@ -172,11 +324,192 @@
 				scene.add( reticle );
 
 				//
+				var clock = new THREE.Clock();
 
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
 
+			function raycast ( e ) {
+			// Step 1: Detect light helper
+				//1. sets the mouse position with a coordinate system where the center
+				//   of the screen is the origin
+				// mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+				// mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+				// //2. set the picking ray from the camera position and mouse coordinates
+				// raycaster.setFromCamera( mouse, camera );    
+
+				// //3. compute intersections (note the 2nd parameter)
+				// var intersects = raycaster.intersectObjects( scene.children, true );
+
+				// for ( var i = 0; i < intersects.length; i++ ) {
+				// 	console.log( intersects[ i ] ); 
+				// 	/*
+				// 		An intersection has the following properties :
+				// 			- object : intersected object (THREE.Mesh)
+				// 			- distance : distance from camera to intersection (number)
+				// 			- face : intersected face (THREE.Face3)
+				// 			- faceIndex : intersected face index (number)
+				// 			- point : intersection point (THREE.Vector3)
+				// 			- uv : intersection point in the object's UV coordinates (THREE.Vector2)
+				// 	*/
+				// }
+			// Step 2: Detect normal objects
+				//1. sets the mouse position with a coordinate system where the center
+				//   of the screen is the origin
+				mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+				//2. set the picking ray from the camera position and mouse coordinates
+				raycaster.setFromCamera( mouse, camera );    
+
+				//3. compute intersections (no 2nd parameter true anymore)
+				var intersects = raycaster.intersectObjects( scene.children );
+
+				
+				
+				for ( var i = 0; i < intersects.length; i++ ) {
+					console.log( intersects[ i ].object ); 
+					console.log('touched ->' + intersects[ i ].object.name)
+					//intersects[ i ].object.visible = false
+					//intersects[ i ].object.scale.x = 0.5;
+					GlbObject = intersects[ i ].object;
+					console.log('active object = ' + GlbObject)
+					//buildUp().start(intersects[ i ].object);
+					const p = intersects[i].point
+					console.log('point -> ' + p.x)
+					console.log('glb obj rot' + GlbObject.rotation.x + '-' + GlbObject.rotation.y + '-' + GlbObject.rotation.z + '-')
+					//transform( GlbObject, 2000 );
+
+					
+					
+				}
+
+											// new TWEEN.Tween(intersects[ i ].object.scale)
+						// 	.to(
+						// 		{
+						// 			y: p.y + 3,
+						// 		},
+						// 		250
+						// 	)
+						// 	.easing(TWEEN.Easing.Cubic.Out)
+						// 	.onUpdate(() => render()) //this line is unnecessary if you are re-rendering within the animation loop
+						// 	.start()
+						// 	.onComplete(() => {
+						// 		new TWEEN.Tween(monkey.position)
+						// 			.to(
+						// 				{
+						// 					y: p.y + 1,
+						// 				},
+						// 				250
+						// 			)
+						// 			.easing(TWEEN.Easing.Bounce.Out)
+						// 			.onUpdate(() => render()) //this line is unnecessary if you are re-rendering within the animation loop
+						// 			.start()
+						// 	})
+					
+					
+					// new TWEEN.Tween(coords)
+					// .to({ x: cube.position.x, y: cube.position.y })
+					// .onUpdate(() =>
+					// 	camera.position.set(coords.x, coords.y, camera.position.z)
+					// )
+					// .start();
+					/*
+						An intersection has the following properties :
+							- object : intersected object (THREE.Mesh)
+							- distance : distance from camera to intersection (number)
+							- face : intersected face (THREE.Face3)
+							- faceIndex : intersected face index (number)
+							- point : intersection point (THREE.Vector3)
+							- uv : intersection point in the object's UV coordinates (THREE.Vector2)
+					*/
+				//}
+
+			}
+			function transform( activeObject, duration ) {
+
+				new TWEEN.Tween( activeObject.position )
+						.to( { x: activeObject.position.x -1, y: activeObject.position.y, z: activeObject.position.z - 2 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( activeObject.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y+ 2 , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+			
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+
+			function transform2( activeObject, duration ) {
+
+				new TWEEN.Tween( activeObject.position )
+						.to( { x: 0, y: 0, z: 0 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( activeObject.rotation )
+					.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+
+			function transform3( activeObject, duration ) {
+
+				new TWEEN.Tween( activeObject.position )
+						.to( { x: activeObject.position.x , y: activeObject.position.y, z: activeObject.position.z - 4 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( activeObject.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+				}
+			function transform4( activeObject, duration ) {
+
+				new TWEEN.Tween( activeObject.position )
+						.to( { x: 1, y: 1, z: 0 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( activeObject.rotation )
+					.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+				}
 			function onWindowResize() {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -190,13 +523,30 @@
 
 			function animate() {
 
+				requestAnimationFrame( animate );
+
+				TWEEN.update();
+
+				controls.update();
+
+				//requestAnimationFrame( animate );
+				// TWEEN.update();
+				// //controls.update();
+				stats.update();
 				renderer.setAnimationLoop( render );
 
 			}
 
 			function render( timestamp, frame ) {
-
+				if(GlbObject != null){
+					console.log('render intiiated' + GlbObject.position.x)
+					updatedPositionX = GlbObject.position.x;
+					updatedPositionY = GlbObject.position.y;
+					updatedPositionZ = GlbObject.position.z;
+				}	
 				if ( frame ) {
+
+
 
 					const referenceSpace = renderer.xr.getReferenceSpace();
 					const session = renderer.xr.getSession();
@@ -244,7 +594,7 @@
 					}
 
 				}
-
+				stats.update();
 				renderer.render( scene, camera );
 
 			}
