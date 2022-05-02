@@ -101,7 +101,8 @@
 		<script type="importmap">
 			{
 				"imports": {
-					"three": "../build/three.module.js"
+					"three": "../build/three.module.js",
+					"three-mesh-ui": "https://unpkg.com/three-mesh-ui@6.4.0/build/three-mesh-ui.module.js"
 				}
 			}
 		</script>
@@ -111,7 +112,8 @@
 			import * as THREE from 'three';
 			import { TWEEN } from './jsm/libs/tween.module.min.js';
 			//import {Text} from 'https://unpkg.com/troika-three-text@0.39.2/dist/troika-three-text.esm.js?module';
- 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import * as ThreeMeshUI from "three-mesh-ui";
 			import { ARButton } from './jsm/webxr/ARButton.js';
 			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
@@ -119,6 +121,7 @@
 			import Stats from './jsm/libs/stats.module.js'
 
 			let container;
+			let textContainer1;
 			let updatedPositionX;
 			let updatedPositionY;
 			let updatedPositionZ;
@@ -193,11 +196,35 @@
 				controls.target.set( 0, 0, - 1 );
 				controls.update();
 
+//
+
+				textContainer1 = new ThreeMeshUI.Block({
+				width: 1,
+				height: 0.7,
+				padding: 0.2,
+				fontFamily: './jsm/three-mesh-ui/assets/Roboto-msdf.json',
+				fontTexture: './jsm/three-mesh-ui/assets/Roboto-msdf.png',
+				});
 
 				//
-		
 
-				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+				const text = new ThreeMeshUI.Text({
+				content: "Some text to be displayed"
+				});
+
+				textContainer1.add( text );
+
+				textContainer1.position.z = 0
+				// scene is a THREE.Scene (see three.js)
+				
+				scene.add( textContainer1 );
+
+				// This is typically done in the render loop :
+				ThreeMeshUI.update();
+				//
+			
+
+				//document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
 				//
 				raycaster = new THREE.Raycaster();
@@ -421,6 +448,9 @@
 				);
 				reticle.matrixAutoUpdate = false;
 				reticle.visible = false;
+				reticle.material.transparent = true;
+						// set opacity to 50%
+				reticle.material.opacity = 0.5;  
 				scene.add( reticle );
 
 				//
@@ -544,7 +574,6 @@
 					.start();
 			}
 
-			
 			function transform( activeObject, duration ) {
 				circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
 				if(state1){
@@ -694,7 +723,12 @@
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
-					
+					new TWEEN.Tween( textContainer1.scale )
+						.to( { x: 1, y: 1, z: 1 }, 1000 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
 				}
 				else{
 					new TWEEN.Tween( selectCircle1.scale )
@@ -702,7 +736,11 @@
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
-
+					new TWEEN.Tween( textContainer1.scale )
+						.to( { x: 0, y: 0, z: 0 }, 1000 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
 					
 				}
 
@@ -728,8 +766,9 @@
 			function animate() {
 				//console.log('not intersecting')
 				requestAnimationFrame( animate );
-
+				textContainer1.lookAt( camera.position );
 				TWEEN.update();
+				ThreeMeshUI.update();
 
 				controls.update();
 				raycaster.setFromCamera(mouse, camera)
