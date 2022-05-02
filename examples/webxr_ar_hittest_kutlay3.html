@@ -110,7 +110,7 @@
 
 			import * as THREE from 'three';
 			import { TWEEN } from './jsm/libs/tween.module.min.js';
-			import {Text} from 'https://unpkg.com/troika-three-text@0.39.2/dist/troika-three-text.esm.js?module';
+			//import {Text} from 'https://unpkg.com/troika-three-text@0.39.2/dist/troika-three-text.esm.js?module';
  			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { ARButton } from './jsm/webxr/ARButton.js';
 			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
@@ -125,10 +125,25 @@
 			let camera, scene, renderer;
 			let controller;
 			let controls;
+			let intersected = false;
 			const stats = Stats()
 
 			let selectCircle1;
 			let isIntersectselectCircle1 = false;
+			var obj = {
+				value: '',
+				letMeKnow() {
+					console.log(`The variable has changed to ${this.testVar}`);
+				},
+				get testVar() {
+					return this.value;
+				},
+				set testVar(value) {
+					this.value = value;
+					this.letMeKnow();
+				}
+			}
+
 			let GlbObject;
 			let textObj;
 			const Cssobjects = [];
@@ -186,7 +201,7 @@
 
 				//
 				raycaster = new THREE.Raycaster();
-    			//renderer.domElement.addEventListener( 'click', raycast, false );
+    			renderer.domElement.addEventListener( 'select', raycast, false );
 				
 				var obj;
 
@@ -243,20 +258,20 @@
 					scene.add( circle );
 
 
-				textObj = new Text()
+				// textObj = new Text()
 				
 
-				// Set properties to configure:
-				textObj.text = 'Hello world!'
-				textObj.fontSize = 0.1
-				textObj.position.z = -0.099
-				textObj.position.x = 0
-				textObj.position.y = 0
-				textObj.color = 0x9966FF
+				// // Set properties to configure:
+				// textObj.text = 'Hello world!'
+				// textObj.fontSize = 0.1
+				// textObj.position.z = -0.099
+				// textObj.position.x = 0
+				// textObj.position.y = 0
+				// textObj.color = 0x9966FF
 
-				// Update the rendering:
-				scene.add(textObj)
-				textObj.sync()
+				// // Update the rendering:
+				// scene.add(textObj)
+				// textObj.sync()
 				
 				
 				const buttonTable = document.getElementById( 'table' );
@@ -388,10 +403,11 @@
 						scene.add( mesh );
 					}
 
-					circleScaleAnm(selectCircle1, 500)
+					circleScaleAnm(selectCircle1, 1000, isIntersectselectCircle1)
 
 
 				}
+
 
 				
 
@@ -413,6 +429,7 @@
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
+
 
 			function raycast ( e ) {
 
@@ -439,8 +456,8 @@
 					console.log('point -> ' + p.x)
 					console.log('glb obj rot' + GlbObject.rotation.x + '-' + GlbObject.rotation.y + '-' + GlbObject.rotation.z + '-')
 					//state1 = true;
-					transform( GlbObject, 2000 );
-
+					//transform( GlbObject, 2000 );
+					//circleScaleAnm( selectCircle1, 200, isIntersectselectCircle1 )
 					
 					
 				}
@@ -527,9 +544,9 @@
 					.start();
 			}
 
-
+			
 			function transform( activeObject, duration ) {
-
+				circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
 				if(state1){
 					new TWEEN.Tween( activeObject.position )
 						.to( { x: activeObject.position.x-1, y: activeObject.position.y, z: activeObject.position.z-3 }, duration )
@@ -669,11 +686,11 @@
 
 				}
 
-			function circleScaleAnm( selectCircle1, duration ) {
-
-				if(isIntersectselectCircle1){
+			function circleScaleAnm( selectCircle1, duration, statingen ) {
+				console.log('circleScaleAnm ---> ' + selectCircle1.scale)
+				if(statingen){
 					new TWEEN.Tween( selectCircle1.scale )
-						.to( { x: 1.1, y: 1.1, z: 1.1 }, duration )
+						.to( { x: 1.4, y: 1.4, z: 1.4 }, duration )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
@@ -681,7 +698,7 @@
 				}
 				else{
 					new TWEEN.Tween( selectCircle1.scale )
-						.to( { x: 1, y: 1, z: 1 }, duration )
+						.to( { x: 0.7, y: 0.7, z: 0.7 }, duration )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
@@ -696,7 +713,7 @@
 					.onUpdate( render )
 					.start();
 
-				}
+			}
 			function onWindowResize() {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -709,7 +726,7 @@
 			//
 
 			function animate() {
-
+				//console.log('not intersecting')
 				requestAnimationFrame( animate );
 
 				TWEEN.update();
@@ -721,15 +738,24 @@
 					if(intersects.length > 0)
 					{
 						isIntersectselectCircle1 = true;
+						
+						if(!intersected){
+							circleScaleAnm(selectCircle1,300, isIntersectselectCircle1)
+							intersected = true;
+						}
 						selectCircle1.material.color.setHex(0xffff00);
-						circleScaleAnm()
+						
 						//selectCircle1.scale.multiplyScalar(1.1)
-						console.log('intersecting')
+						//console.log('intersecting')
 					}
 					else{
-						circleScaleAnm()
 						isIntersectselectCircle1 = false;
-						console.log('not intersecting')
+						//circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
+						//console.log('not intersecting')
+						if(intersected){
+							circleScaleAnm(selectCircle1,300, isIntersectselectCircle1)
+							intersected = false;
+						}
 						selectCircle1.material.color.setHex(0x000000);
 						//selectCircle1.scale.multiplyScalar(0.9)
 					}
@@ -743,9 +769,10 @@
 			}
 
 			function render( timestamp, frame ) {
-				
-				if ( frame ) {
+			
 
+				if ( frame ) {
+					
 					const referenceSpace = renderer.xr.getReferenceSpace();
 					const session = renderer.xr.getSession();
 
@@ -790,7 +817,7 @@
 						}
 
 					}
-
+					//circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
 				}
 				stats.update();
 				renderer.render( scene, camera );
