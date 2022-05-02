@@ -744,7 +744,10 @@
 							intersected = true;
 						}
 						selectCircle1.material.color.setHex(0xffff00);
-						
+
+						selectCircle1.material.transparent = true;
+						// set opacity to 50%
+						selectCircle1.material.opacity = 0.5; 
 						//selectCircle1.scale.multiplyScalar(1.1)
 						//console.log('intersecting')
 					}
@@ -757,6 +760,9 @@
 							intersected = false;
 						}
 						selectCircle1.material.color.setHex(0x000000);
+						selectCircle1.material.transparent = true;
+						// set opacity to 50%
+						selectCircle1.material.opacity = 1; 
 						//selectCircle1.scale.multiplyScalar(0.9)
 					}
 				}
