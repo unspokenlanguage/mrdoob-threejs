@@ -387,9 +387,9 @@
 						mesh.scale.y = Math.random() * 2 + 1;
 						scene.add( mesh );
 					}
-					if(isIntersectselectCircle1){
-						circleScaleAnm(selectCircle1, 500)
-					}
+
+					circleScaleAnm(selectCircle1, 500)
+
 
 				}
 
@@ -669,34 +669,34 @@
 
 				}
 
-				function circleScaleAnm( selectCircle1, duration ) {
+			function circleScaleAnm( selectCircle1, duration ) {
 
-					if(isIntersectselectCircle1){
-						new TWEEN.Tween( selectCircle1.scale )
-							.to( { x: 1.1, y: 1.1, z: 1.1 }, duration )
-							.easing( TWEEN.Easing.Exponential.InOut )
-							.onUpdate( render )
-							.start();
-						
-					}
-					else{
-						new TWEEN.Tween( selectCircle1.scale )
-							.to( { x: 1, y: 1, z: 1 }, duration )
-							.easing( TWEEN.Easing.Exponential.InOut )
-							.onUpdate( render )
-							.start();
-
-						
-					}
-
-					//console.log('state1 -> ' + state1)
-
-					new TWEEN.Tween( this )
-						.to( {}, duration * 2 )
+				if(isIntersectselectCircle1){
+					new TWEEN.Tween( selectCircle1.scale )
+						.to( { x: 1.1, y: 1.1, z: 1.1 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					
+				}
+				else{
+					new TWEEN.Tween( selectCircle1.scale )
+						.to( { x: 1, y: 1, z: 1 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
 
-					}
+					
+				}
+
+				//console.log('state1 -> ' + state1)
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+				}
 			function onWindowResize() {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -722,10 +722,12 @@
 					{
 						isIntersectselectCircle1 = true;
 						selectCircle1.material.color.setHex(0xffff00);
+						//circleScaleAnm()
 						//selectCircle1.scale.multiplyScalar(1.1)
 						console.log('intersecting')
 					}
 					else{
+						circleScaleAnm()
 						isIntersectselectCircle1 = false;
 						console.log('not intersecting')
 						selectCircle1.material.color.setHex(0x000000);
