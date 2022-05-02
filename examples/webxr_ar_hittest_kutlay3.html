@@ -126,6 +126,9 @@
 			let controller;
 			let controls;
 			const stats = Stats()
+
+			let selectCircle1;
+			let isIntersectselectCircle1 = false;
 			let GlbObject;
 			let textObj;
 			const Cssobjects = [];
@@ -183,7 +186,7 @@
 
 				//
 				raycaster = new THREE.Raycaster();
-    			renderer.domElement.addEventListener( 'click', raycast, false );
+    			//renderer.domElement.addEventListener( 'click', raycast, false );
 				
 				var obj;
 
@@ -230,6 +233,15 @@
 						} );
 
 					} );
+
+					const circlegeometry = new THREE.CircleGeometry( 0.08, 32 );
+					const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+					const circle = new THREE.Mesh( circlegeometry, material );
+					circle.position.set( 0, 0, -.6 );
+					console.log('circle scale -> ' + circle.scale.x)
+					selectCircle1 = circle;
+					scene.add( circle );
+
 
 				textObj = new Text()
 				
@@ -330,7 +342,7 @@
 						const loader = new GLTFLoader().setPath( 'models/gltf/Lantern/glTF/' );
 						loader.load( 'Lantern.gltf', function ( gltf ) {
 							const model = gltf.scene;
-							model.position.set( -2, -1, -2 );
+							model.position.set( -1, -1, -2 );
 							model.scale.set( 0.1, 0.1, 0.1 );
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
 							//console.log(gltf.scene)
@@ -346,7 +358,10 @@
 					} );
 
 				renderer.domElement.addEventListener("click", onclick, true);
+				function onclick() {
+					
 
+				}
 
 				
 				function onlodinen(modelobj){
@@ -363,7 +378,7 @@
 				const geometry = new THREE.CylinderGeometry( 0.1, 0.1, 0.2, 32 ).translate( 0, 0.1, 0 );
 
 				function onSelect() {
-
+					console.log('select event triggered')
 					if ( reticle.visible ) {
 
 						const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
@@ -371,7 +386,9 @@
 						reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
 						mesh.scale.y = Math.random() * 2 + 1;
 						scene.add( mesh );
-
+					}
+					if(isIntersectselectCircle1){
+						circleScaleAnm(selectCircle1, 500)
 					}
 
 				}
@@ -398,33 +415,7 @@
 			}
 
 			function raycast ( e ) {
-			// Step 1: Detect light helper
-				//1. sets the mouse position with a coordinate system where the center
-				//   of the screen is the origin
-				// mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-				// mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
 
-				// //2. set the picking ray from the camera position and mouse coordinates
-				// raycaster.setFromCamera( mouse, camera );    
-
-				// //3. compute intersections (note the 2nd parameter)
-				// var intersects = raycaster.intersectObjects( scene.children, true );
-
-				// for ( var i = 0; i < intersects.length; i++ ) {
-				// 	console.log( intersects[ i ] ); 
-				// 	/*
-				// 		An intersection has the following properties :
-				// 			- object : intersected object (THREE.Mesh)
-				// 			- distance : distance from camera to intersection (number)
-				// 			- face : intersected face (THREE.Face3)
-				// 			- faceIndex : intersected face index (number)
-				// 			- point : intersection point (THREE.Vector3)
-				// 			- uv : intersection point in the object's UV coordinates (THREE.Vector2)
-				// 	*/
-				// }
-			// Step 2: Detect normal objects
-				//1. sets the mouse position with a coordinate system where the center
-				//   of the screen is the origin
 				mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
 				mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
 
@@ -432,9 +423,9 @@
 				raycaster.setFromCamera( mouse, camera );    
 
 				//3. compute intersections (no 2nd parameter true anymore)
-				var intersects = raycaster.intersectObjects( scene.children );
-
-				
+				var intersects = raycaster.intersectObjects( GlbObject, true );
+				//const intersects = raycaster.intersectObject(gltfObject, true)
+				console.log('intersects.length -> ' + intersects.length)
 				
 				for ( var i = 0; i < intersects.length; i++ ) {
 					console.log( intersects[ i ].object ); 
@@ -535,6 +526,8 @@
 					.onUpdate( render )
 					.start();
 			}
+
+
 			function transform( activeObject, duration ) {
 
 				if(state1){
@@ -675,6 +668,35 @@
 					.start();
 
 				}
+
+				function circleScaleAnm( selectCircle1, duration ) {
+
+					if(isIntersectselectCircle1){
+						new TWEEN.Tween( selectCircle1.scale )
+							.to( { x: 1.1, y: 1.1, z: 1.1 }, duration )
+							.easing( TWEEN.Easing.Exponential.InOut )
+							.onUpdate( render )
+							.start();
+						
+					}
+					else{
+						new TWEEN.Tween( selectCircle1.scale )
+							.to( { x: 1, y: 1, z: 1 }, duration )
+							.easing( TWEEN.Easing.Exponential.InOut )
+							.onUpdate( render )
+							.start();
+
+						
+					}
+
+					//console.log('state1 -> ' + state1)
+
+					new TWEEN.Tween( this )
+						.to( {}, duration * 2 )
+						.onUpdate( render )
+						.start();
+
+					}
 			function onWindowResize() {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
@@ -693,7 +715,23 @@
 				TWEEN.update();
 
 				controls.update();
-
+				raycaster.setFromCamera(mouse, camera)
+				if(selectCircle1){
+					const intersects = raycaster.intersectObject(selectCircle1)
+					if(intersects.length > 0)
+					{
+						isIntersectselectCircle1 = true;
+						selectCircle1.material.color.setHex(0xffff00);
+						//selectCircle1.scale.multiplyScalar(1.1)
+						console.log('intersecting')
+					}
+					else{
+						isIntersectselectCircle1 = false;
+						console.log('not intersecting')
+						selectCircle1.material.color.setHex(0x000000);
+						//selectCircle1.scale.multiplyScalar(0.9)
+					}
+				}
 				//requestAnimationFrame( animate );
 				// TWEEN.update();
 				// //controls.update();
@@ -703,15 +741,8 @@
 			}
 
 			function render( timestamp, frame ) {
-				if(GlbObject != null){
-					console.log('render intiiated' + GlbObject.position.x)
-					updatedPositionX = GlbObject.position.x;
-					updatedPositionY = GlbObject.position.y;
-					updatedPositionZ = GlbObject.position.z;
-				}	
+				
 				if ( frame ) {
-
-
 
 					const referenceSpace = renderer.xr.getReferenceSpace();
 					const session = renderer.xr.getSession();
