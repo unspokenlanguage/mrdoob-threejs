@@ -183,7 +183,8 @@
 				// create a global audio source
 				sound = new THREE.Audio( listener );
 				camera.add(sound)
-			    
+				
+				
 
 				
 				//
@@ -194,9 +195,12 @@
 				const materialP = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: texture, side: THREE.FrontSide} ));
 				
 				plane = new THREE.Mesh( geometryP, materialP );
-				plane.position.z = 100;
+				//plane.position.z = 100;
 				plane.material.transparent = true;
 				
+				var vec = new THREE.Vector3(0,0, 100)
+				vec.applyQuaternion(camera.quaternion);
+				plane.position.copy(vec);
 				
 				scene.add(plane)
 				// renderer = new CSS3DRenderer();
@@ -837,7 +841,7 @@
 			}
 
 			//
-
+			
 			function animate() {
 				//console.log('not intersecting')
 				requestAnimationFrame( animate );
@@ -845,10 +849,12 @@
 				TWEEN.update();
 				ThreeMeshUI.update();
 
-				plane.position.copy( camera.position );
-				plane.rotation.copy( camera.rotation );
-				plane.updateMatrix();
-				plane.translateZ(  -0.2 );
+				// plane.position.copy( camera.position );
+				// plane.rotation.copy( camera.rotation );
+				// plane.updateMatrix();
+				// plane.translateZ(  -0.2 );
+
+			
 
 				textContainer1.position.copy( camera.position );
 				textContainer1.rotation.copy( camera.rotation );
