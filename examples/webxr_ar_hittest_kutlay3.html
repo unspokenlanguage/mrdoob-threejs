@@ -82,7 +82,7 @@
 		</style>
 	</head>
 	<body>
-		<div id="info"><a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> css3d - periodic table.</div>
+		
 		<div id="container"></div>
 		<div id="menu">
 			<button id="table">ANM1</button>
@@ -171,6 +171,7 @@
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+				camera.rotation.y = 0.3928531677427101;
 				scene.add(camera)
 				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
 				light.position.set( 0.5, 1, 0.25 );
@@ -298,8 +299,12 @@
 
 					} );
 
+					const textureInfo = new THREE.TextureLoader().load( 'textures/info.png' );
+
 					const circlegeometry = new THREE.CircleGeometry( 0.08, 32 );
-					const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+					const material = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: textureInfo, side: THREE.FrontSide} ));
+					material.transparent = true;
+					//const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
 					const circle = new THREE.Mesh( circlegeometry, material );
 					circle.position.set( 0, 0, -.6 );
 					console.log('circle scale -> ' + circle.scale.x)
@@ -764,7 +769,7 @@
 						.onUpdate( render )
 						.start();
 					new TWEEN.Tween( textContainer1.scale )
-						.to( { x: 1, y: 1, z: 1 }, 1000 )
+						.to( { x: 0.6, y: 0.6, z: 0.6 }, 1000 )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
@@ -854,11 +859,11 @@
 							circleScaleAnm(selectCircle1,300, isIntersectselectCircle1)
 							intersected = true;
 						}
-						selectCircle1.material.color.setHex(0xffff00);
+						//selectCircle1.material.color.setHex(0xffff00);
 
-						selectCircle1.material.transparent = true;
+						//selectCircle1.material.transparent = true;
 						// set opacity to 50%
-						selectCircle1.material.opacity = 0.5; 
+						selectCircle1.material.opacity = 1; 
 						//selectCircle1.scale.multiplyScalar(1.1)
 						//console.log('intersecting')
 					}
@@ -870,8 +875,8 @@
 							circleScaleAnm(selectCircle1,300, isIntersectselectCircle1)
 							intersected = false;
 						}
-						selectCircle1.material.color.setHex(0x000000);
-						selectCircle1.material.transparent = true;
+						//selectCircle1.material.color.setHex(0x000000);
+						//selectCircle1.material.transparent = true;
 						// set opacity to 50%
 						selectCircle1.material.opacity = 1; 
 						//selectCircle1.scale.multiplyScalar(0.9)
@@ -887,7 +892,7 @@
 
 			function render( timestamp, frame ) {
 			
-				//console.log('camera pos ' + camera.position.x + ' ' + camera.position.y + ' ' + camera.position.z)
+				console.log('camera pos ' + camera.rotation.x + ' ' + camera.rotation.y + ' ' + camera.rotation.z)
 				//console.log(plane.scale.x)
 				// plane.position.x = -camera.position.x;
 				// plane.position.x = -camera.position.y;
