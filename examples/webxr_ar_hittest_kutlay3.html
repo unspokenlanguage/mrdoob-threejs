@@ -183,7 +183,7 @@
 				// create a global audio source
 				sound = new THREE.Audio( listener );
 				camera.add(sound)
-			    audioLoader = new THREE.AudioLoader();
+			    
 
 				
 				//
@@ -222,17 +222,19 @@
 //
 
 				textContainer1 = new ThreeMeshUI.Block({
-				width: 1,
-				height: 0.7,
-				padding: 0.2,
-				fontFamily: './jsm/three-mesh-ui/assets/Roboto-msdf.json',
-				fontTexture: './jsm/three-mesh-ui/assets/Roboto-msdf.png',
+					width: 1,
+					height: 0.7,
+					padding: 0.2,
+					backgroundColor: new THREE.Color('#ffffff'),
+					fontFamily: './jsm/three-mesh-ui/assets/Roboto-msdf.json',
+					fontTexture: './jsm/three-mesh-ui/assets/Roboto-msdf.png',
 				});
 
 				//
 
 				const text = new ThreeMeshUI.Text({
-				content: "Some text to be displayed"
+					content: "Some text to be displayed",
+					fontColor: new THREE.Color(0x000000),
 				});
 
 				textContainer1.add( text );
@@ -746,6 +748,7 @@
 				console.log('circleScaleAnm ---> ' + selectCircle1.scale)
 				if(statingen){
 					//Load a sound and set it as the Audio object's buffer
+					audioLoader = new THREE.AudioLoader();
 					audioLoader.load( 'sounds/info-sound.wav', function( buffer ) {
 						sound.setBuffer( buffer );
 						sound.setLoop(false);
@@ -769,7 +772,7 @@
 						.onUpdate( render )
 						.start();
 					new TWEEN.Tween( textContainer1.scale )
-						.to( { x: 0.6, y: 0.6, z: 0.6 }, 1000 )
+						.to( { x: 0.1, y: 0.1, z: 0.1 }, 1000 )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
@@ -846,6 +849,12 @@
 				plane.rotation.copy( camera.rotation );
 				plane.updateMatrix();
 				plane.translateZ(  -0.2 );
+
+				textContainer1.position.copy( camera.position );
+				textContainer1.rotation.copy( camera.rotation );
+				textContainer1.updateMatrix();
+				textContainer1.translateZ(  -0.2 );
+				
 
 				controls.update();
 				raycaster.setFromCamera(mouse, camera)
