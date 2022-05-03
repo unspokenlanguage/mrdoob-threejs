@@ -130,7 +130,8 @@
 			let controls;
 			let intersected = false;
 			const stats = Stats()
-
+			var audioLoader;
+			var sound;
 			let selectCircle1;
 			let isIntersectselectCircle1 = false;
 			var obj = {
@@ -175,8 +176,18 @@
 				light.position.set( 0.5, 1, 0.25 );
 				scene.add( light );
 
+				var listener = new THREE.AudioListener();
+				camera.add( listener );
+
+				// create a global audio source
+				sound = new THREE.Audio( listener );
+				camera.add(sound)
+			    audioLoader = new THREE.AudioLoader();
+
+				
 				//
-				const texture = THREE.ImageUtils.loadTexture( "textures/reticle_hud.png" );
+				const texture = new THREE.TextureLoader().load( 'textures/reticle_hud.png' );
+
 
 				const geometryP = new THREE.PlaneGeometry( 0.02, 0.02 );
 				const materialP = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: texture, side: THREE.FrontSide} ));
@@ -729,6 +740,24 @@
 			function circleScaleAnm( selectCircle1, duration, statingen ) {
 				console.log('circleScaleAnm ---> ' + selectCircle1.scale)
 				if(statingen){
+					//Load a sound and set it as the Audio object's buffer
+					audioLoader.load( 'sounds/info-sound.wav', function( buffer ) {
+						sound.setBuffer( buffer );
+						sound.setLoop(false);
+						sound.setVolume(0.1);
+						sound.play();
+					},
+					// onProgress callback
+					function ( xhr ) {
+						console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+					},
+
+					// onError callback
+					function ( err ) {
+						console.log( 'Un error ha ocurrido' );
+					}
+
+					);
 					new TWEEN.Tween( selectCircle1.scale )
 						.to( { x: 1.4, y: 1.4, z: 1.4 }, duration )
 						.easing( TWEEN.Easing.Exponential.InOut )
@@ -744,10 +773,26 @@
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
-
-
 				}
 				else{
+					//Load a sound and set it as the Audio object's buffer
+					audioLoader.load( 'sounds/info-closesound.wav', function( buffer ) {
+						sound.setBuffer( buffer );
+						sound.setLoop(false);
+						sound.setVolume(0.1);
+						sound.play();
+					},
+					// onProgress callback
+					function ( xhr ) {
+						console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+					},
+
+					// onError callback
+					function ( err ) {
+						console.log( 'Un error ha ocurrido' );
+					}
+
+					);
 					new TWEEN.Tween( selectCircle1.scale )
 						.to( { x: 0.7, y: 0.7, z: 0.7 }, duration )
 						.easing( TWEEN.Easing.Exponential.InOut )
@@ -843,7 +888,7 @@
 			function render( timestamp, frame ) {
 			
 				//console.log('camera pos ' + camera.position.x + ' ' + camera.position.y + ' ' + camera.position.z)
-				console.log(plane.scale.x)
+				//console.log(plane.scale.x)
 				// plane.position.x = -camera.position.x;
 				// plane.position.x = -camera.position.y;
 				// plane.position.z = -camera.position.z;
