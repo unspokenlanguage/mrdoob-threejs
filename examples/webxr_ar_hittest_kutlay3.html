@@ -148,6 +148,7 @@
 			}
 
 			let GlbObject;
+			let plane
 			let textObj;
 			const Cssobjects = [];
 			let reticle;
@@ -169,13 +170,23 @@
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
-
+				scene.add(camera)
 				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
 				light.position.set( 0.5, 1, 0.25 );
 				scene.add( light );
 
 				//
+				const texture = THREE.ImageUtils.loadTexture( "textures/reticle_hud.png" );
 
+				const geometryP = new THREE.PlaneGeometry( 0.02, 0.02 );
+				const materialP = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: texture, side: THREE.FrontSide} ));
+				
+				plane = new THREE.Mesh( geometryP, materialP );
+				plane.position.z = 100;
+				plane.material.transparent = true;
+				
+				
+				scene.add(plane)
 				// renderer = new CSS3DRenderer();
 				// renderer.setSize( window.innerWidth, window.innerHeight );
 				
@@ -224,7 +235,7 @@
 				//
 			
 
-				//document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
 				//
 				raycaster = new THREE.Raycaster();
@@ -728,6 +739,12 @@
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
+					new TWEEN.Tween( plane.scale )
+						.to( { x: 0, y: 0, z: 0 }, 301 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
 
 				}
 				else{
@@ -737,7 +754,12 @@
 						.onUpdate( render )
 						.start();
 					new TWEEN.Tween( textContainer1.scale )
-						.to( { x: 0, y: 0, z: 0 }, 1000 )
+						.to( { x: 0, y: 0, z: 0 }, 300 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					new TWEEN.Tween( plane.scale )
+						.to( { x: 1, y: 1, z: 1 }, 1000 )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();
@@ -769,6 +791,11 @@
 				textContainer1.lookAt( camera.position );
 				TWEEN.update();
 				ThreeMeshUI.update();
+
+				plane.position.copy( camera.position );
+				plane.rotation.copy( camera.rotation );
+				plane.updateMatrix();
+				plane.translateZ(  -0.2 );
 
 				controls.update();
 				raycaster.setFromCamera(mouse, camera)
@@ -815,6 +842,14 @@
 
 			function render( timestamp, frame ) {
 			
+				//console.log('camera pos ' + camera.position.x + ' ' + camera.position.y + ' ' + camera.position.z)
+				console.log(plane.scale.x)
+				// plane.position.x = -camera.position.x;
+				// plane.position.x = -camera.position.y;
+				// plane.position.z = -camera.position.z;
+				// plane.rotation.x = camera.rotation.x;
+				// plane.rotation.y = camera.rotation.y;
+				// plane.rotation.z = camera.rotation.z;
 
 				if ( frame ) {
 					
