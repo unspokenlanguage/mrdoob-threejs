@@ -91,7 +91,7 @@
 			<button id="grid">ANM4</button>
 		</div>
 		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - hit test<br/>(Chrome Android 81+sound)
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - hit test<br/>(Chrome Android 81+sound2)
 		</div>
 
 		<!-- Import maps polyfill -->
@@ -183,8 +183,7 @@
 				// create a global audio source
 				sound = new THREE.Audio( listener );
 				camera.add(sound)
-				
-				
+			    
 
 				
 				//
@@ -195,12 +194,9 @@
 				const materialP = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: texture, side: THREE.FrontSide} ));
 				
 				plane = new THREE.Mesh( geometryP, materialP );
-				//plane.position.z = 100;
+				plane.position.z = 100;
 				plane.material.transparent = true;
 				
-				var vec = new THREE.Vector3(0,0, 100)
-				vec.applyQuaternion(camera.quaternion);
-				plane.position.copy(vec);
 				
 				scene.add(plane)
 				// renderer = new CSS3DRenderer();
@@ -243,7 +239,9 @@
 
 				textContainer1.add( text );
 
-				textContainer1.position.z = 0
+				
+
+				//.position.z = 0
 				// scene is a THREE.Scene (see three.js)
 				
 				scene.add( textContainer1 );
@@ -849,17 +847,25 @@
 				TWEEN.update();
 				ThreeMeshUI.update();
 
-				// plane.position.copy( camera.position );
-				// plane.rotation.copy( camera.rotation );
-				// plane.updateMatrix();
-				// plane.translateZ(  -0.2 );
+				plane.position.copy( camera.position );
+				plane.rotation.copy( camera.rotation );
+				plane.updateMatrix();
+				plane.translateZ(  -0.2 );
 
-			
 
 				textContainer1.position.copy( camera.position );
 				textContainer1.rotation.copy( camera.rotation );
 				textContainer1.updateMatrix();
-				textContainer1.translateZ(  -0.2 );
+				textContainer1.translateZ(  -0.1 );
+
+				// var vec = new THREE.Vector3(0,0, 0.1)
+				// vec.applyQuaternion(camera.quaternion);
+				// textContainer1.position.copy(vec);
+
+				// textContainer1.position.copy( camera.position );
+				// textContainer1.rotation.copy( camera.rotation );
+				// textContainer1.updateMatrix();
+				// textContainer1.translateZ(  -0.2 );
 				
 
 				controls.update();
