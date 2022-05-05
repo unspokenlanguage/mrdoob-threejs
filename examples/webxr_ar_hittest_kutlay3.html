@@ -104,6 +104,7 @@
 					"three": "../build/three.module.js",
 					"three-mesh-ui": "https://unpkg.com/three-mesh-ui@6.4.0/build/three-mesh-ui.module.js"
 				}
+				
 			}
 		</script>
 
@@ -183,8 +184,14 @@
 				// create a global audio source
 				sound = new THREE.Audio( listener );
 				camera.add(sound)
-			    
-
+				//World space interaction annotation position update - Region
+				let uiElement = document.getElementById('ui');
+					navigator.xr.requestSession('immersive-ar', {
+						optionalFeatures: ['dom-overlay'],
+						domOverlay: { root: uiElement } }).then((session) => {
+						// session.domOverlayState.type is now set if supported,
+						// or is null if the feature is not supported.
+					}
 				
 				//
 				const texture = new THREE.TextureLoader().load( 'textures/reticle_hud.png' );

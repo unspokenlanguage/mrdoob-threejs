@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js ar - hit test</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			a {
+				color: #8ff;
+			}
+
+			#menu {
+				position: absolute;
+				left : 0px;
+				bottom: 100px;
+				width: 100%;
+				text-align: center;
+			}
+
+			.element {
+				width: 120px;
+				height: 160px;
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+				border: 1px solid rgba(127,255,255,0.25);
+				font-family: Helvetica, sans-serif;
+				text-align: center;
+				line-height: normal;
+				cursor: default;
+			}
+
+			.element:hover {
+				box-shadow: 0px 0px 12px rgba(0,255,255,0.75);
+				border: 1px solid rgba(127,255,255,0.75);
+			}
+
+				.element .number {
+					position: absolute;
+					top: 20px;
+					right: 20px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+				}
+
+				.element .symbol {
+					position: absolute;
+					top: 40px;
+					left: 0px;
+					right: 0px;
+					font-size: 60px;
+					font-weight: bold;
+					color: rgba(255,255,255,0.75);
+					text-shadow: 0 0 10px rgba(0,255,255,0.95);
+				}
+
+				.element .details {
+					position: absolute;
+					bottom: 15px;
+					left: 0px;
+					right: 0px;
+					font-size: 12px;
+					color: rgba(127,255,255,0.75);
+				}
+
+			button {
+				color: rgba(127,255,255,0.75);
+				background: transparent;
+				outline: 1px solid rgba(127,255,255,0.75);
+				border: 0px;
+				padding: 5px 10px;
+				cursor: pointer;
+			}
+
+			button:hover {
+				background-color: rgba(0,255,255,0.5);
+			}
+
+			button:active {
+				color: #000000;
+				background-color: rgba(0,255,255,0.75);
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div id="container"></div>
+		<div id="menu">
+			<button id="table">ANM1</button>
+			<button id="sphere">ANM2</button>
+			<button id="helix">ANM3</button>
+			<button id="grid">ANM4</button>
+		</div>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - hit test<br/>(Chrome Android 81+sound2)
+		</div>
+
+		<!-- Import maps polyfill -->
+		<!-- Remove this when import maps will be widely supported -->
+		<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three-mesh-ui": "https://unpkg.com/three-mesh-ui@6.4.0/build/three-mesh-ui.module.js"
+				}
+				
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+			import { TWEEN } from './jsm/libs/tween.module.min.js';
+			//import {Text} from 'https://unpkg.com/troika-three-text@0.39.2/dist/troika-three-text.esm.js?module';
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import * as ThreeMeshUI from "three-mesh-ui";
+			import { ARButton } from './jsm/webxr/ARButton.js';
+			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
+			import { CSS3DRenderer, CSS3DObject } from './jsm/renderers/CSS3DRenderer.js';
+			import Stats from './jsm/libs/stats.module.js'
+
+			let container;
+			let textContainer1;
+			let updatedPositionX;
+			let updatedPositionY;
+			let updatedPositionZ;
+			let camera, scene, renderer;
+			let controller;
+			let controls;
+			let intersected = false;
+			const stats = Stats()
+			var audioLoader;
+			var sound;
+			let selectCircle1;
+			let isIntersectselectCircle1 = false;
+			var obj = {
+				value: '',
+				letMeKnow() {
+					console.log(`The variable has changed to ${this.testVar}`);
+				},
+				get testVar() {
+					return this.value;
+				},
+				set testVar(value) {
+					this.value = value;
+					this.letMeKnow();
+				}
+			}
+
+			let GlbObject;
+			let plane
+			let textObj;
+			const Cssobjects = [];
+			let reticle;
+			var raycaster, mouse = { x : 0, y : 0 };
+			let monkey;
+			let hitTestSource = null;
+			let hitTestSourceRequested = false;
+			const clock = new THREE.Clock();
+			let model ;
+			let state1 = true;
+			init();
+			animate();
+
+			function init() {
+				document.body.appendChild(stats.dom)
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
+				camera.rotation.y = 0.3928531677427101;
+				scene.add(camera)
+				// const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+				// light.position.set( 0.5, 1, 0.25 );
+				//scene.add( light );
+
+				var listener = new THREE.AudioListener();
+				camera.add( listener );
+
+				// create a global audio source
+				sound = new THREE.Audio( listener );
+				camera.add(sound)
+				//World space interaction annotation position update - Region
+				// let uiElement = document.getElementById('ui');
+				// 	navigator.xr.requestSession('immersive-ar', {
+				// 		optionalFeatures: ['dom-overlay'],
+				// 		domOverlay: { root: uiElement } }).then((session) => {
+				// 		// session.domOverlayState.type is now set if supported,
+				// 		// or is null if the feature is not supported.
+				// 	}
+				
+				// //
+				const texture = new THREE.TextureLoader().load( 'textures/reticle_hud.png' );
+
+
+				const geometryP = new THREE.PlaneGeometry( 0.02, 0.02 );
+				const materialP = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: texture, side: THREE.FrontSide} ));
+				
+				plane = new THREE.Mesh( geometryP, materialP );
+				plane.position.z = 100;
+				plane.material.transparent = true;
+				
+				
+				scene.add(plane)
+				// renderer = new CSS3DRenderer();
+				// renderer.setSize( window.innerWidth, window.innerHeight );
+				
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.xr.enabled = true;
+				container.appendChild( renderer.domElement );
+
+			    controls = new OrbitControls( camera, renderer.domElement );
+				document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+				controls.addEventListener( 'change', render ); // use if there is no animation loop
+				controls.minDistance = 2;
+				controls.maxDistance = 10;
+				controls.target.set( 0, 0, - 1 );
+				controls.update();
+
+//
+
+				textContainer1 = new ThreeMeshUI.Block({
+					width: 1,
+					height: 0.7,
+					padding: 0.2,
+					backgroundColor: new THREE.Color('#ffffff'),
+					fontFamily: './jsm/three-mesh-ui/assets/Roboto-msdf.json',
+					fontTexture: './jsm/three-mesh-ui/assets/Roboto-msdf.png',
+				});
+
+				//
+
+				const text = new ThreeMeshUI.Text({
+					content: "Some text to be displayed",
+					fontColor: new THREE.Color(0x000000),
+				});
+
+				textContainer1.add( text );
+
+				
+
+				//.position.z = 0
+				// scene is a THREE.Scene (see three.js)
+				
+				scene.add( textContainer1 );
+
+				// This is typically done in the render loop :
+				ThreeMeshUI.update();
+				//
+			
+
+				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+
+				//
+				raycaster = new THREE.Raycaster();
+    			renderer.domElement.addEventListener( 'select', raycast, false );
+				
+				var obj;
+
+				new RGBELoader()
+					.setPath( 'textures/equirectangular/' )
+					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+
+						texture.mapping = THREE.EquirectangularReflectionMapping;
+
+						//scene.background = texture;
+						scene.environment = texture;
+
+						render();
+
+						// model
+
+						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/' );
+						loader.load( 'rendo.glb', function ( gltf ) {
+
+							gltf.scene.traverse(function (child) {
+							if (child.isMesh) {
+								let m = child
+								monkey = m
+								console.log('monkey ->' + monkey)
+								model = monkey;
+								}
+							
+							})
+						    model = gltf.scene;
+							obj = gltf.scene;
+							model.position.set( 0, -2, -6 );
+							model.scale.set( 0.05, 0.05, 0.05 );
+							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
+							//console.log(gltf.scene)
+							//cubes77.push(gltf.scene)
+							console.log(model)
+							onlodinen(model)
+							scene.add( model );
+							GlbObject = model ;
+							console.log('Default OBJ -> ' + GlbObject.name)
+							
+							render();
+
+						} );
+
+					} );
+
+					const textureInfo = new THREE.TextureLoader().load( 'textures/info.png' );
+
+					const circlegeometry = new THREE.CircleGeometry( 0.08, 32 );
+					const material = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: textureInfo, side: THREE.FrontSide} ));
+					material.transparent = true;
+					//const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+					const circle = new THREE.Mesh( circlegeometry, material );
+					circle.position.set( 0, 0, -.6 );
+					console.log('circle scale -> ' + circle.scale.x)
+					selectCircle1 = circle;
+					scene.add( circle );
+
+
+				// textObj = new Text()
+				
+
+				// // Set properties to configure:
+				// textObj.text = 'Hello world!'
+				// textObj.fontSize = 0.1
+				// textObj.position.z = -0.099
+				// textObj.position.x = 0
+				// textObj.position.y = 0
+				// textObj.color = 0x9966FF
+
+				// // Update the rendering:
+				// scene.add(textObj)
+				// textObj.sync()
+				
+				
+				const buttonTable = document.getElementById( 'table' );
+				buttonTable.addEventListener( 'click', function () {
+					console.log('clicked | active obj -> ' + GlbObject + ' object name -> ' + GlbObject.name)
+					//GlbObject.position.x = -1
+					
+					transform( GlbObject, 2000 );
+
+				} );
+
+				const buttonSphere = document.getElementById( 'sphere' );
+				buttonSphere.addEventListener( 'click', function () {
+
+					transform2( GlbObject, 2000 );
+
+				} );
+
+				const buttonHelix = document.getElementById( 'helix' );
+				buttonHelix.addEventListener( 'click', function () {
+
+					transform3( GlbObject, 2000 );
+
+				} );
+
+				const buttonGrid = document.getElementById( 'grid' );
+				buttonGrid.addEventListener( 'click', function () {
+
+					transform4( GlbObject, 2000 );
+
+				} );
+
+				
+
+				const element = document.createElement( 'div' );
+				element.className = 'element';
+				element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+
+				const number = document.createElement( 'div' );
+				number.className = 'number';
+				number.textContent = 'test1';
+				element.appendChild( number );
+
+				const symbol = document.createElement( 'div' );
+				symbol.className = 'symbol';
+				symbol.textContent = 'test1';
+				element.appendChild( symbol );
+
+				const details = document.createElement( 'div' );
+				details.className = 'details';
+				details.innerHTML = 'test3';
+				element.appendChild( details );
+
+				const objectCSS = new CSS3DObject( element );
+				objectCSS.position.x = 0;
+				objectCSS.position.y = 0;
+				objectCSS.position.z = 0;
+				
+				Cssobjects.push( objectCSS );
+
+				scene.add( objectCSS );
+
+				console.log('Cssobjects[0].position ->' + Cssobjects[0].position.x)
+
+				//transformUIElement( 2000 );
+				
+
+				
+
+				new RGBELoader()
+				.setPath( 'textures/equirectangular/' )
+				.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+
+						texture.mapping = THREE.EquirectangularReflectionMapping;
+
+						//scene.background = texture;
+						scene.environment = texture;
+
+						render();
+
+						// model
+
+						const loader = new GLTFLoader().setPath( 'models/gltf/Lantern/glTF/' );
+						loader.load( 'Lantern.gltf', function ( gltf ) {
+							const model = gltf.scene;
+							model.position.set( -1, -1, -2 );
+							model.scale.set( 0.1, 0.1, 0.1 );
+							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
+							//console.log(gltf.scene)
+							//cubes77.push(gltf.scene)
+							console.log(model)
+
+							scene.add( model );
+
+							render();
+
+						} );
+
+					} );
+
+				renderer.domElement.addEventListener("click", onclick, true);
+				function onclick() {
+					
+
+				}
+
+				
+				function onlodinen(modelobj){
+					console.log('onloadinen girildi')
+					console.log('onloadinen modelobj -> ' + modelobj)
+					//modelobj.scale.x = 0.1
+					// modelobj.scale.x = 1;
+					// modelobj.scale.y = 1;
+					// modelobj.scale.z = 1;
+					
+
+					//buildUp(modelobj).start();
+				}
+				const geometry = new THREE.CylinderGeometry( 0.1, 0.1, 0.2, 32 ).translate( 0, 0.1, 0 );
+
+				function onSelect() {
+					console.log('select event triggered')
+					if ( reticle.visible ) {
+
+						const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
+						const mesh = new THREE.Mesh( geometry, material );
+						reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
+						mesh.scale.y = Math.random() * 2 + 1;
+						scene.add( mesh );
+					}
+
+					circleScaleAnm(selectCircle1, 1000, isIntersectselectCircle1)
+
+
+				}
+
+
+				
+
+				controller = renderer.xr.getController( 0 );
+				controller.addEventListener( 'select', onSelect );
+				scene.add( controller );
+
+				reticle = new THREE.Mesh(
+					new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+					new THREE.MeshBasicMaterial()
+				);
+				reticle.matrixAutoUpdate = false;
+				reticle.visible = false;
+				reticle.material.transparent = true;
+						// set opacity to 50%
+				reticle.material.opacity = 0.5;  
+				scene.add( reticle );
+
+				//
+				var clock = new THREE.Clock();
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+
+			function raycast ( e ) {
+
+				mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+				mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+				//2. set the picking ray from the camera position and mouse coordinates
+				raycaster.setFromCamera( mouse, camera );    
+
+				//3. compute intersections (no 2nd parameter true anymore)
+				var intersects = raycaster.intersectObjects( GlbObject, true );
+				//const intersects = raycaster.intersectObject(gltfObject, true)
+				console.log('intersects.length -> ' + intersects.length)
+				
+				for ( var i = 0; i < intersects.length; i++ ) {
+					console.log( intersects[ i ].object ); 
+					console.log('touched ->' + intersects[ i ].object.name)
+					//intersects[ i ].object.visible = false
+					//intersects[ i ].object.scale.x = 0.5;
+					GlbObject = intersects[ i ].object;
+					console.log('active object = ' + GlbObject)
+					//buildUp().start(intersects[ i ].object);
+					const p = intersects[i].point
+					console.log('point -> ' + p.x)
+					console.log('glb obj rot' + GlbObject.rotation.x + '-' + GlbObject.rotation.y + '-' + GlbObject.rotation.z + '-')
+					//state1 = true;
+					//transform( GlbObject, 2000 );
+					//circleScaleAnm( selectCircle1, 200, isIntersectselectCircle1 )
+					
+					
+				}
+
+											// new TWEEN.Tween(intersects[ i ].object.scale)
+						// 	.to(
+						// 		{
+						// 			y: p.y + 3,
+						// 		},
+						// 		250
+						// 	)
+						// 	.easing(TWEEN.Easing.Cubic.Out)
+						// 	.onUpdate(() => render()) //this line is unnecessary if you are re-rendering within the animation loop
+						// 	.start()
+						// 	.onComplete(() => {
+						// 		new TWEEN.Tween(monkey.position)
+						// 			.to(
+						// 				{
+						// 					y: p.y + 1,
+						// 				},
+						// 				250
+						// 			)
+						// 			.easing(TWEEN.Easing.Bounce.Out)
+						// 			.onUpdate(() => render()) //this line is unnecessary if you are re-rendering within the animation loop
+						// 			.start()
+						// 	})
+					
+					
+					// new TWEEN.Tween(coords)
+					// .to({ x: cube.position.x, y: cube.position.y })
+					// .onUpdate(() =>
+					// 	camera.position.set(coords.x, coords.y, camera.position.z)
+					// )
+					// .start();
+					/*
+						An intersection has the following properties :
+							- object : intersected object (THREE.Mesh)
+							- distance : distance from camera to intersection (number)
+							- face : intersected face (THREE.Face3)
+							- faceIndex : intersected face index (number)
+							- point : intersection point (THREE.Vector3)
+							- uv : intersection point in the object's UV coordinates (THREE.Vector2)
+					*/
+				//}
+
+			}
+			function transformUIElement(duration){
+				const object = Cssobjects[0]
+				console.log('transformUIElement object pos x ' + object.position.x)
+
+				if(state1){
+					new TWEEN.Tween( object.position )
+						.to( { x: object.position.x, y: object.position.y, z: object.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+					new TWEEN.Tween( object.rotation )
+						.to( { x: 0 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = false;
+				}
+				else{
+					new TWEEN.Tween( object.position )
+						.to( { x: 0, y: 0, z: -1 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+					new TWEEN.Tween( object.rotation )
+						.to( { x: 0 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = false;
+				}
+				
+			
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+			}
+
+			function transform( activeObject, duration ) {
+				circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
+				if(state1){
+					new TWEEN.Tween( activeObject.position )
+						.to( { x: activeObject.position.x-1, y: activeObject.position.y, z: activeObject.position.z-3 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+					new TWEEN.Tween( activeObject.rotation )
+						.to( { x: 1 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = false;
+				}
+				else{
+					new TWEEN.Tween( activeObject.position )
+						.to( { x: 0, y: 0, z: -1 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+					new TWEEN.Tween( activeObject.rotation )
+						.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					state1 = true;
+				}
+				
+				console.log('state1 -> ' + state1)
+			
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+
+			function transform2( activeObject, duration ) {
+
+				new TWEEN.Tween( activeObject.position )
+						.to( { x: 0, y: 0, z: 0 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( activeObject.rotation )
+					.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( textObj.position )
+						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( textObj.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+
+			function transform3( activeObject, duration ) {
+
+				new TWEEN.Tween( activeObject.position )
+						.to( { x: activeObject.position.x , y: activeObject.position.y, z: activeObject.position.z - 4 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( activeObject.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( textObj.position )
+						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( textObj.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+			
+					
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+				}
+			function transform4( activeObject, duration ) {
+
+				new TWEEN.Tween( activeObject.position )
+						.to( { x: 1, y: 1, z: 0 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( activeObject.rotation )
+					.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+				new TWEEN.Tween( textObj.position )
+						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+
+				new TWEEN.Tween( textObj.rotation )
+					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+					
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+				}
+
+			function circleScaleAnm( selectCircle1, duration, statingen ) {
+				console.log('circleScaleAnm ---> ' + selectCircle1.scale)
+				if(statingen){
+					//Load a sound and set it as the Audio object's buffer
+					audioLoader = new THREE.AudioLoader();
+					audioLoader.load( 'sounds/info-sound.wav', function( buffer ) {
+						sound.setBuffer( buffer );
+						sound.setLoop(false);
+						sound.setVolume(0.1);
+						sound.play();
+					},
+					// onProgress callback
+					function ( xhr ) {
+						console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+					},
+
+					// onError callback
+					function ( err ) {
+						console.log( 'Un error ha ocurrido' );
+					}
+
+					);
+					new TWEEN.Tween( selectCircle1.scale )
+						.to( { x: 1.4, y: 1.4, z: 1.4 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					new TWEEN.Tween( textContainer1.scale )
+						.to( { x: 0.1, y: 0.1, z: 0.1 }, 1000 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					new TWEEN.Tween( plane.scale )
+						.to( { x: 0, y: 0, z: 0 }, 301 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+				}
+				else{
+					//Load a sound and set it as the Audio object's buffer
+					audioLoader.load( 'sounds/info-closesound.wav', function( buffer ) {
+						sound.setBuffer( buffer );
+						sound.setLoop(false);
+						sound.setVolume(0.1);
+						sound.play();
+					},
+					// onProgress callback
+					function ( xhr ) {
+						console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+					},
+
+					// onError callback
+					function ( err ) {
+						console.log( 'Un error ha ocurrido' );
+					}
+
+					);
+					new TWEEN.Tween( selectCircle1.scale )
+						.to( { x: 0.7, y: 0.7, z: 0.7 }, duration )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					new TWEEN.Tween( textContainer1.scale )
+						.to( { x: 0, y: 0, z: 0 }, 300 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					new TWEEN.Tween( plane.scale )
+						.to( { x: 1, y: 1, z: 1 }, 1000 )
+						.easing( TWEEN.Easing.Exponential.InOut )
+						.onUpdate( render )
+						.start();
+					
+				}
+
+				//console.log('state1 -> ' + state1)
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+
+			}
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+			
+			function animate() {
+				//console.log('not intersecting')
+				requestAnimationFrame( animate );
+				textContainer1.lookAt( camera.position );
+				TWEEN.update();
+				ThreeMeshUI.update();
+
+				plane.position.copy( camera.position );
+				plane.rotation.copy( camera.rotation );
+				plane.updateMatrix();
+				plane.translateZ(  -0.2 );
+
+
+				textContainer1.position.copy( camera.position );
+				textContainer1.rotation.copy( camera.rotation );
+				textContainer1.updateMatrix();
+				textContainer1.translateZ(  -0.1 );
+
+				// var vec = new THREE.Vector3(0,0, 0.1)
+				// vec.applyQuaternion(camera.quaternion);
+				// textContainer1.position.copy(vec);
+
+				// textContainer1.position.copy( camera.position );
+				// textContainer1.rotation.copy( camera.rotation );
+				// textContainer1.updateMatrix();
+				// textContainer1.translateZ(  -0.2 );
+				
+
+				controls.update();
+				raycaster.setFromCamera(mouse, camera)
+				if(selectCircle1){
+					const intersects = raycaster.intersectObject(selectCircle1)
+					if(intersects.length > 0)
+					{
+						isIntersectselectCircle1 = true;
+						
+						if(!intersected){
+							circleScaleAnm(selectCircle1,300, isIntersectselectCircle1)
+							intersected = true;
+						}
+						//selectCircle1.material.color.setHex(0xffff00);
+
+						//selectCircle1.material.transparent = true;
+						// set opacity to 50%
+						selectCircle1.material.opacity = 1; 
+						//selectCircle1.scale.multiplyScalar(1.1)
+						//console.log('intersecting')
+					}
+					else{
+						isIntersectselectCircle1 = false;
+						//circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
+						//console.log('not intersecting')
+						if(intersected){
+							circleScaleAnm(selectCircle1,300, isIntersectselectCircle1)
+							intersected = false;
+						}
+						//selectCircle1.material.color.setHex(0x000000);
+						//selectCircle1.material.transparent = true;
+						// set opacity to 50%
+						selectCircle1.material.opacity = 1; 
+						//selectCircle1.scale.multiplyScalar(0.9)
+					}
+				}
+				//requestAnimationFrame( animate );
+				// TWEEN.update();
+				// //controls.update();
+				stats.update();
+				renderer.setAnimationLoop( render );
+
+			}
+
+			function render( timestamp, frame ) {
+			
+				console.log('camera pos ' + camera.rotation.x + ' ' + camera.rotation.y + ' ' + camera.rotation.z)
+				//console.log(plane.scale.x)
+				// plane.position.x = -camera.position.x;
+				// plane.position.x = -camera.position.y;
+				// plane.position.z = -camera.position.z;
+				// plane.rotation.x = camera.rotation.x;
+				// plane.rotation.y = camera.rotation.y;
+				// plane.rotation.z = camera.rotation.z;
+
+				if ( frame ) {
+					
+					const referenceSpace = renderer.xr.getReferenceSpace();
+					const session = renderer.xr.getSession();
+
+					if ( hitTestSourceRequested === false ) {
+
+						session.requestReferenceSpace( 'viewer' ).then( function ( referenceSpace ) {
+
+							session.requestHitTestSource( { space: referenceSpace } ).then( function ( source ) {
+
+								hitTestSource = source;
+
+							} );
+
+						} );
+
+						session.addEventListener( 'end', function () {
+
+							hitTestSourceRequested = false;
+							hitTestSource = null;
+
+						} );
+
+						hitTestSourceRequested = true;
+
+					}
+
+					if ( hitTestSource ) {
+
+						const hitTestResults = frame.getHitTestResults( hitTestSource );
+
+						if ( hitTestResults.length ) {
+
+							const hit = hitTestResults[ 0 ];
+
+							reticle.visible = true;
+							reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
+
+						} else {
+
+							reticle.visible = false;
+
+						}
+
+					}
+					//circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
+				}
+				stats.update();
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
