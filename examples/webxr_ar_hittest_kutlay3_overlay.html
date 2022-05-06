@@ -84,9 +84,6 @@
 	<body>
 
 
-			 
-
-
 		<div id="content">
 			<div id="img-div">
 				<img  src="textures/reticle_hud.png" class="reticle_hud" id="huddingne" width="35px" height="35px"/>
@@ -105,9 +102,6 @@
 			  
 			<span style="font-size:30px;cursor:pointer;position: absolute;" onclick="openNav()">&#9776; open</span>
 
-			
-			
-	   
 			<button type="button" id="place-button">PLACE</button>
 		</div>
 
@@ -303,7 +297,7 @@
 				arbutton = ARButton.createButton(renderer, { 
 					requiredFeatures: ['hit-test'],
 					optionalFeatures: ['dom-overlay'],
-					domOverlay: { root: document.getElementById('huddingne') } 
+					domOverlay: { root: document.getElementById('img-div') } 
 				})
 				document.body.appendChild(arbutton);
 
