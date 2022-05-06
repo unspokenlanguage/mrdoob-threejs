@@ -88,7 +88,10 @@
 
 
 		<div id="content">
-			<img  src="textures/reticle_hud.png" class="reticle_hud" id="huddingne" width="35px" height="35px"/>
+			<div id="img-div">
+				<img  src="textures/reticle_hud.png" class="reticle_hud" id="huddingne" width="35px" height="35px"/>
+			</div>
+			
 			asdasdga
 			<div id="mySidenav" class="sidenav">
 				<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
@@ -339,7 +342,7 @@
 							})
 						    model = gltf.scene;
 							obj = gltf.scene;
-							model.position.set( 0, 0, -1 );
+							model.position.set( 0, 0.5, -2 );
 							model.scale.set( 0.4, 0.4, 0.4 );
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
 							//console.log(gltf.scene)
