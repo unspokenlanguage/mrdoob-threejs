@@ -85,6 +85,28 @@
 
 
 		<div id="content">
+			<div id="cards_landscape_wrap-2">
+				<div class="container2">
+					<div class="row">
+						<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3">
+							<a href="">
+								<div class="card-flyer">
+									<div class="text-box">
+										<div class="image-box">
+											<img src="https://cdn.pixabay.com/photo/2018/03/30/15/11/deer-3275594_960_720.jpg" alt="" />
+										</div>
+										<div class="text-container">
+											<h6>Title 01</h6>
+											<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.</p>
+										</div>
+									</div>
+								</div>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		
 			<div id="img-div">
 				<img  src="textures/reticle_hud.png" class="reticle_hud" id="huddingne" width="35px" height="35px"/>
 			</div>
@@ -97,8 +119,7 @@
 				<a class="ar-object" id="3" href="#">item_3</a>
 				<a class="ar-object" id="4" href="#">item_4</a>
 			</div>
-	
-			<div id="container" style="position: fixed;"></div>
+	]
 			  
 			<span style="font-size:30px;cursor:pointer;position: absolute;" onclick="openNav()">&#9776; open</span>
 
@@ -297,7 +318,7 @@
 				arbutton = ARButton.createButton(renderer, { 
 					requiredFeatures: ['hit-test'],
 					optionalFeatures: ['dom-overlay'],
-					domOverlay: { root: document.getElementById('img-div') } 
+					domOverlay: { root: document.getElementById('cards_landscape_wrap-2') } 
 				})
 				document.body.appendChild(arbutton);
 
