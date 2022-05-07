@@ -102,38 +102,40 @@
 	</head>
 	<body>
 
-
-		<div id="content">
-			<div class="container" id='container'>
-				<div class="row pt-5 m-auto">
-				  <div class="col-md-6 col-lg-4 pb-3">
-			
-					<!-- Copy the content below until next comment -->
-					<div class="card card-custom bg-white border-white border-0">
-					  <div class="card-custom-img" style="background-image: url(http://res.cloudinary.com/d3/image/upload/c_scale,q_auto:good,w_1110/trianglify-v1-cs85g_cc5d2i.jpg);"></div>
-					  <div class="card-custom-avatar">
-						<img class="img-fluid" src="http://res.cloudinary.com/d3/image/upload/c_pad,g_center,h_200,q_auto:eco,w_200/bootstrap-logo_u3c8dx.jpg" alt="Avatar" />
-					  </div>
-					  <div class="card-body" style="overflow-y: auto">
-						<h4 class="card-title">Card title</h4>
-						<p class="card-text">Card has minimum height set but will expand if more space is needed for card body content. You can use Bootstrap <a href="https://getbootstrap.com/docs/4.0/components/card/#card-decks" target="_blank">card-decks</a> to align multiple cards nicely in a row.</p>
-					  </div>
-					  <div class="card-footer" style="background: inherit; border-color: inherit;">
-						<a href="#" class="btn btn-primary">Option</a>
-						<a href="#" class="btn btn-outline-primary">Other option</a>
-					  </div>
-					</div>
-					<!-- Copy until here -->
-			
+		<div class="container" id='container'>
+			<div class="row pt-5 m-auto">
+			  <div class="col-md-6 col-lg-4 pb-3">
+		
+				<!-- Copy the content below until next comment -->
+				<div class="card card-custom bg-white border-white border-0">
+				  <div class="card-custom-img" style="background-image: url(http://res.cloudinary.com/d3/image/upload/c_scale,q_auto:good,w_1110/trianglify-v1-cs85g_cc5d2i.jpg);"></div>
+				  <div class="card-custom-avatar">
+					<img class="img-fluid" src="http://res.cloudinary.com/d3/image/upload/c_pad,g_center,h_200,q_auto:eco,w_200/bootstrap-logo_u3c8dx.jpg" alt="Avatar" />
+				  </div>
+				  <div class="card-body" style="overflow-y: auto">
+					<h4 class="card-title">Card title</h4>
+					<p class="card-text">Card has minimum height set but will expand if more space is needed for card body content. You can use Bootstrap <a href="https://getbootstrap.com/docs/4.0/components/card/#card-decks" target="_blank">card-decks</a> to align multiple cards nicely in a row.</p>
+				  </div>
+				  <div class="card-footer" style="background: inherit; border-color: inherit;">
+					<a href="#" class="btn btn-primary">Option</a>
+					<a href="#" class="btn btn-outline-primary">Other option</a>
 				  </div>
 				</div>
+				<!-- Copy until here -->
+				<button type="button" id="place-button">PLACE</button>
+				<div id="img-div">
+					<img  src="textures/reticle_hud.png" class="reticle_hud" id="huddingne" width="35px" height="35px"/>
+				</div>
+				
 			  </div>
-		
-			<div id="img-div">
-				<img  src="textures/reticle_hud.png" class="reticle_hud" id="huddingne" width="35px" height="35px"/>
 			</div>
+		  </div>
+
+		<!-- <div id="content">
 			
-			asdasdga
+		
+			
+			
 			<div id="mySidenav" class="sidenav">
 				<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
 				<a class="ar-object" id="1" href="#">item_1</a>
@@ -145,8 +147,8 @@
 			  
 			<span style="font-size:30px;cursor:pointer;position: absolute;" onclick="openNav()">&#9776; open</span>
 
-			<button type="button" id="place-button">PLACE</button>
-		</div>
+			
+		</div> -->
 
 		<script>
 			function openNav() {
@@ -197,6 +199,7 @@
 			import Stats from './jsm/libs/stats.module.js'
 
 			let container;
+			let container2;
 			let arbutton;
 			let textContainer1;
 			let updatedPositionX;
@@ -245,6 +248,9 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
+				container2 = document.createElement( 'div' );
+				document.body.appendChild( container2 );
+				
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
@@ -403,7 +409,8 @@
 					material.transparent = true;
 					//const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
 					const circle = new THREE.Mesh( circlegeometry, material );
-					circle.position.set( 0, 0, -.6 );
+					circle.position.set( 0, -1.2, -.6 );
+					circle.scale.set(0,0,0)
 					console.log('circle scale -> ' + circle.scale.x)
 					selectCircle1 = circle;
 					scene.add( circle );
@@ -491,44 +498,44 @@
 				
 
 				
+//LANTERN
+				// new RGBELoader()
+				// .setPath( 'textures/equirectangular/' )
+				// .load( 'royal_esplanade_1k.hdr', function ( texture ) {
 
-				new RGBELoader()
-				.setPath( 'textures/equirectangular/' )
-				.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+				// 		texture.mapping = THREE.EquirectangularReflectionMapping;
 
-						texture.mapping = THREE.EquirectangularReflectionMapping;
+				// 		//scene.background = texture;
+				// 		scene.environment = texture;
 
-						//scene.background = texture;
-						scene.environment = texture;
+				// 		render();
 
-						render();
+				// 		// model
 
-						// model
+				// 		const loader = new GLTFLoader().setPath( 'models/gltf/Lantern/glTF/' );
+				// 		loader.load( 'Lantern.gltf', function ( gltf ) {
+				// 			const model = gltf.scene;
+				// 			model.position.set( -1, -1, -2 );
+				// 			model.scale.set( 0.1, 0.1, 0.1 );
+				// 			//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
+				// 			//console.log(gltf.scene)
+				// 			//cubes77.push(gltf.scene)
+				// 			console.log(model)
 
-						const loader = new GLTFLoader().setPath( 'models/gltf/Lantern/glTF/' );
-						loader.load( 'Lantern.gltf', function ( gltf ) {
-							const model = gltf.scene;
-							model.position.set( -1, -1, -2 );
-							model.scale.set( 0.1, 0.1, 0.1 );
-							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
-							//console.log(gltf.scene)
-							//cubes77.push(gltf.scene)
-							console.log(model)
+				// 			scene.add( model );
 
-							scene.add( model );
+				// 			render();
 
-							render();
+				// 		} );
 
-						} );
+				// 	} );
 
-					} );
-
-				renderer.domElement.addEventListener("click", onclick, true);
-				function onclick() {
+				// renderer.domElement.addEventListener("click", onclick, true);
+				// function onclick() {
 					
 
-				}
-
+				// }
+//LANTERN
 				
 				function onlodinen(modelobj){
 					console.log('onloadinen girildi')
