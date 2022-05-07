@@ -6,6 +6,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link type="text/css" rel="stylesheet" href="main.css">
 		<style id="compiled-css" type="text/css">
+
+			
 			html, body {
 				overflow: hidden;
 				margin: 0;
@@ -169,6 +171,8 @@
 	</head>
 	<body>
 		
+		
+
 		<div id="container"></div>
 		<div id="menu">
 			<button id="table">ANM1</button>
@@ -198,6 +202,10 @@
 		<section id="loading-screen">
 			<p id="loaded"></p>
 			<div id="loader"></div>
+			<div class="Progressbar">
+				<div class="Progressbar__value"></div>
+				<progress value="0" max="100">100%</progress>
+			</div>
 		 </section>
 
 		<script type="module">
@@ -258,10 +266,23 @@
 			let state1 = true;
 			init();
 			animate();
-
-
-
+			// let progressValue;
+			// let progress;
+			
+			// function setValue(value) {
+			    
+			// 	progressValue.style.width =  `${value}%`;
+			// 	progress.value = value;
+			// };
+			
+			
 			function init() {
+				const progressValue = document.querySelector('.Progressbar__value');
+			    const progress = document.querySelector('progress');
+
+				progressValue.style.width =  `${0}%`;
+				progress.value = 0;
+				
 				cotdown()
 				document.body.appendChild(stats.dom)
 				container = document.createElement( 'div' );
@@ -285,6 +306,38 @@
 						loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
 					}
 				} );
+
+				
+
+				loadingManager.onStart = function (item, loaded, total) {
+					console.log('Loading startedddddddddd');
+					//setValue(0);
+				};
+
+				loadingManager.onLoad = function () {
+					console.log('Loading complete');     
+					const loadingScreen = document.getElementById( 'loading-screen' );
+					loadingScreen.classList.add( 'fade-out' );
+						// optional: remove loader from DOM via event listener
+					loadingScreen.addEventListener( 'transitionend', onTransitionEnd );       
+					//bar.destroy();
+				};
+
+				loadingManager.onProgress = function (item, loaded, total) {            
+					console.log(item, loaded, total);
+					console.log('Loaded:', Math.round(loaded / total * 100, 2) + '%')
+					document.getElementById("percentage").innerHTML = Math.round(loaded / total * 100, 2) + '%';
+					//setValue(Math.round(loaded / total * 100, 2));
+					progressValue.style.width =  `${Math.round(loaded / total * 100, 2)}%`;
+					progress.value = Math.round(loaded / total * 100, 2);
+					//progressValue.style.width = `${Math.round(loaded / total * 100, 2)}%'';
+  					//progress.value = Math.round(loaded / total * 100, 2);
+					//bar.animate(1.0);
+				};
+
+				loadingManager.onError = function (url) {
+					console.log('Error loading');
+				};
 
 				
 
@@ -618,26 +671,12 @@
 				var clock = new THREE.Clock();
 
 
-				THREE.DefaultLoadingManager.onStart = (url, loaded, total) => {
-					console.log(`loadinggggggggggg ${url}.  loadeddddddd ${loaded} of ${total}`)
-					document.getElementById("percentage").innerHTML = (loaded/total)*100 + '%';
-				}
-				THREE.DefaultLoadingManager.onLoad = () => {
-					console.log(`loadinggggggg complete`)
-					console.log("reallyyyy setting it up now")
-					
-				}
-				THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
-					console.log(`prog ${url}.  loadedddddd ${loaded} of ${total}`)
-					document.getElementById("percentage").innerHTML = (loaded/total)*100 + '%';
-					
-				}
-				THREE.DefaultLoadingManager.onError = (url) => {
-					console.log(`error loading ${url}`)
-				}
+	
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
+			
+			
 			let number = 5;
 			// Set the date we're counting down to
 			function cotdown(){

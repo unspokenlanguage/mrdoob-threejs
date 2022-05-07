@@ -217,3 +217,29 @@ body {
 	height: 100px;
   }
   
+
+
+  .Progressbar {
+	position: relative;
+	height: 32px;
+	width: 300px;
+	border-radius: 1000px;
+	background-color: #484848;
+	clip-path: inset(0 0 0 0 round 1000px);
+  }
+  
+  .Progressbar__value {
+	height: 32px;
+	transition: width 0.4s ease-in-out;
+	border-radius: 1000px 0 0 1000px;
+	background-color: #ff4c65;
+	will-change: width;
+  }
+  
+  .Progressbar > progress {
+	opacity: 0;
+	width: 1px;
+	height: 1px;
+	position: absolute;
+	pointer-events: none;
+  }
