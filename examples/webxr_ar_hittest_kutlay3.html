@@ -41,7 +41,7 @@
 				animation: spin 2s linear infinite;
 			}
 			#loader:before {
-				content: "";
+				content: '';
 				position: absolute;
 				top: 5px;
 				left: 5px;
@@ -54,7 +54,7 @@
 				animation: spin 3s linear infinite;
 			}
 			#loader:after {
-				content: "";
+				content: '';
 				position: absolute;
 				top: 15px;
 				left: 15px;
@@ -196,6 +196,7 @@
 		</script>
 
 		<section id="loading-screen">
+			<p id="loaded"></p>
 			<div id="loader"></div>
 		 </section>
 
@@ -265,9 +266,18 @@
 				document.body.appendChild(stats.dom)
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
+
+				var tag = document.createElement("p");
+				tag.setAttribute("id", "percentage");
+				var text2 = document.createTextNode("");
+				tag.appendChild(text2);
+				stats.dom.appendChild(tag);
+				
 				
 				const loadingManager = new THREE.LoadingManager( () => {
 					const loadingScreen = document.getElementById( 'loading-screen' );
+					//document.getElementById('looader').percentage = 'Status 1';
+
 					console.log("totalNumberLoadedObjects -> " + totalNumberLoadedObjects)
 					if(totalNumberLoadedObjects == 4){
 						loadingScreen.classList.add( 'fade-out' );
@@ -607,6 +617,24 @@
 				//
 				var clock = new THREE.Clock();
 
+
+				THREE.DefaultLoadingManager.onStart = (url, loaded, total) => {
+					console.log(`loadinggggggggggg ${url}.  loadeddddddd ${loaded} of ${total}`)
+					document.getElementById("percentage").innerHTML = (loaded/total)*100 + '%';
+				}
+				THREE.DefaultLoadingManager.onLoad = () => {
+					console.log(`loadinggggggg complete`)
+					console.log("reallyyyy setting it up now")
+					
+				}
+				THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
+					console.log(`prog ${url}.  loadedddddd ${loaded} of ${total}`)
+					document.getElementById("percentage").innerHTML = (loaded/total)*100 + '%';
+					
+				}
+				THREE.DefaultLoadingManager.onError = (url) => {
+					console.log(`error loading ${url}`)
+				}
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
