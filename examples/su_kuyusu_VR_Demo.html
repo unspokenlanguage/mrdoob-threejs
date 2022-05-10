@@ -224,9 +224,17 @@
 			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
 			import { CSS3DRenderer, CSS3DObject } from './jsm/renderers/CSS3DRenderer.js';
 			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
+			import { Water } from './jsm/objects/Water2.js';
 			import Stats from './jsm/libs/stats.module.js'
 
 			let container;
+			let water;
+			const params = {
+				color: '#ffffff',
+				scale: 2,
+				flowX: 0.2,
+				flowY: 0.2
+			};
 			let totalNumberLoadingObjects = 4;
 			let totalNumberLoadedObjects = 0;
 			let textContainer1;
@@ -353,12 +361,14 @@
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
 				camera.rotation.y = 0.3928531677427101;
 				scene.add(camera)
-				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 1 );
+				const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 0.1 );
 				light.position.set( 0.5, 1, 0.25 );
 				scene.add( light );
 
 				var listener = new THREE.AudioListener();
 				camera.add( listener );
+
+
 
 				// create a global audio source
 				// sound = new THREE.Audio( listener );
@@ -376,7 +386,22 @@
 				plane.position.z = 100;
 				plane.material.transparent = true;
 				
-				
+				// water
+
+				const waterGeometry = new THREE.PlaneGeometry( 20, 20 );
+
+				water = new Water( waterGeometry, {
+					color: params.color,
+					scale: params.scale,
+					flowDirection: new THREE.Vector2( params.flowX, params.flowY ),
+					textureWidth: 2048,
+					textureHeight: 2048
+				} );
+
+				water.position.y = -1.36;
+				water.rotation.x = Math.PI * - 0.5;
+				scene.add( water );
+
 				//scene.add(plane)
 				// renderer = new CSS3DRenderer();
 				// renderer.setSize( window.innerWidth, window.innerHeight );
