@@ -333,7 +333,8 @@
 					const loadingScreen = document.getElementById( 'loading-screen' );
 					loadingScreen.classList.add( 'fade-out' );
 						// optional: remove loader from DOM via event listener
-					loadingScreen.addEventListener( 'transitionend', onTransitionEnd );       
+					loadingScreen.addEventListener( 'transitionend', onTransitionEnd );  
+					animatewhenloaded(3000)     
 					//bar.destroy();
 				};
 
@@ -437,7 +438,8 @@
 						    model = gltf.scene;
 							obj = gltf.scene;
 							model.position.set( 0, -1.4, -1 );
-							model.scale.set( 0.006, 0.006, 0.006 );
+							model.scale.set( 0.000, 0.000, 0.000 );
+							//mode.rotation.set(0,0,0)
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
 							//console.log(gltf.scene)
 							//cubes77.push(gltf.scene)
@@ -840,7 +842,21 @@
 
 			//
 			
+			function animatewhenloaded(duration){
+				new TWEEN.Tween( GlbObject.scale )
+					.to( { x: 0.0044, y: 0.0044, z: 0.0044 }, duration )
+					.easing( TWEEN.Easing.Exponential.InOut )
+					.onUpdate( render )
+					.start();
+
+
+				new TWEEN.Tween( this )
+					.to( {}, duration * 2 )
+					.onUpdate( render )
+					.start();
+			}
 			function animate() {
+				
 				//console.log('not intersecting')
 				requestAnimationFrame( animate );
 				textContainer1.lookAt( camera.position );
@@ -866,7 +882,9 @@
 				// textContainer1.rotation.copy( camera.rotation );
 				// textContainer1.updateMatrix();
 				// textContainer1.translateZ(  -0.2 );
-				
+				if(GlbObject != null){
+					GlbObject.rotation.y += 0.005;
+				}
 
 				controls.update();
 				raycaster.setFromCamera(mouse, camera)
@@ -921,6 +939,7 @@
 				// plane.rotation.x = camera.rotation.x;
 				// plane.rotation.y = camera.rotation.y;
 				// plane.rotation.z = camera.rotation.z;
+				
 
 				if ( frame ) {
 					
