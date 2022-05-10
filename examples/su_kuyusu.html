@@ -1,30 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js ar - hit test</title>
+		<title>Su kuyusu Draft Demo Project</title>
 		<meta charset="utf-8">
-
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css" />
-		<title>Custom Bootstrap 4 card</title>
-		<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,500&amp;subset=latin-ext" rel="stylesheet">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 		<link type="text/css" rel="stylesheet" href="main.css">
-		<style>
+		<style id="compiled-css" type="text/css">
 
-			html {
-				font-size: 14px;
-			}
 			
-			.container {
-				font-size: 14px;
-				color: #666666;
-				font-family: "Open Sans";
+			html, body {
+				overflow: hidden;
+				margin: 0;
+				width: 100%;
+				height: 100%;
 			}
-
-
+			#loading-screen {
+				position: absolute;
+				z-index: 2;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background-color: #000000;
+				opacity: 1;
+				transition: 1s opacity;
+			}
+			#loading-screen.fade-out {
+				opacity: 0;
+			}
+			#loader {
+				display: block;
+				position: relative;
+				left: 50%;
+				top: 50%;
+				width: 150px;
+				height: 150px;
+				margin: -75px 0 0 -75px;
+				border-radius: 50%;
+				border: 3px solid transparent;
+				border-top-color: #9370DB;
+				-webkit-animation: spin 2s linear infinite;
+				animation: spin 2s linear infinite;
+			}
+			#loader:before {
+				content: '';
+				position: absolute;
+				top: 5px;
+				left: 5px;
+				right: 5px;
+				bottom: 5px;
+				border-radius: 50%;
+				border: 3px solid transparent;
+				border-top-color: #BA55D3;
+				-webkit-animation: spin 3s linear infinite;
+				animation: spin 3s linear infinite;
+			}
+			#loader:after {
+				content: '';
+				position: absolute;
+				top: 15px;
+				left: 15px;
+				right: 15px;
+				bottom: 15px;
+				border-radius: 50%;
+				border: 3px solid transparent;
+				border-top-color: #FF00FF;
+				-webkit-animation: spin 1.5s linear infinite;
+				animation: spin 1.5s linear infinite;
+			}
+			@-webkit-keyframes spin {
+				0%   {
+					-webkit-transform: rotate(0deg);
+					-ms-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				100% {
+					-webkit-transform: rotate(360deg);
+					-ms-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+			@keyframes spin {
+				0%   {
+					-webkit-transform: rotate(0deg);
+					-ms-transform: rotate(0deg);
+					transform: rotate(0deg);
+				}
+				100% {
+					-webkit-transform: rotate(360deg);
+					-ms-transform: rotate(360deg);
+					transform: rotate(360deg);
+				}
+			}
+		  
+			
 			a {
 				color: #8ff;
 			}
@@ -101,74 +170,19 @@
 		</style>
 	</head>
 	<body>
-
-		<div class="container" id='container'>
-			<div class="row pt-5 m-auto">
-			  <div class="col-md-6 col-lg-4 pb-3">
 		
-				<!-- Copy the content below until next comment -->
-				<div class="card card-custom bg-white border-white border-0">
-				  <div class="card-custom-img" style="background-image: url(http://res.cloudinary.com/d3/image/upload/c_scale,q_auto:good,w_1110/trianglify-v1-cs85g_cc5d2i.jpg);"></div>
-				  <div class="card-custom-avatar">
-					<img class="img-fluid" src="http://res.cloudinary.com/d3/image/upload/c_pad,g_center,h_200,q_auto:eco,w_200/bootstrap-logo_u3c8dx.jpg" alt="Avatar" />
-				  </div>
-				  <div class="card-body" style="overflow-y: auto">
-					<h4 class="card-title">Card title</h4>
-					<p class="card-text">Card has minimum height set but will expand if more space is needed for card body content. You can use Bootstrap <a href="https://getbootstrap.com/docs/4.0/components/card/#card-decks" target="_blank">card-decks</a> to align multiple cards nicely in a row.</p>
-				  </div>
-				  <div class="card-footer" style="background: inherit; border-color: inherit;">
-					<a href="#" class="btn btn-primary">Option</a>
-					<a href="#" class="btn btn-outline-primary">Other option</a>
-				  </div>
-				</div>
-				<!-- Copy until here -->
-				<button type="button" id="place-button">PLACE</button>
-				<div id="img-div">
-					<img  src="textures/reticle_hud.png" class="reticle_hud" id="huddingne" width="35px" height="35px"/>
-				</div>
-				
-			  </div>
-			</div>
-		  </div>
-
-		<!-- <div id="content">
-			
 		
-			
-			
-			<div id="mySidenav" class="sidenav">
-				<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-				<a class="ar-object" id="1" href="#">item_1</a>
-				<a class="ar-object" id="2" href="#">item_2</a>
-				<a class="ar-object" id="3" href="#">item_3</a>
-				<a class="ar-object" id="4" href="#">item_4</a>
-			</div>
-	]
-			  
-			<span style="font-size:30px;cursor:pointer;position: absolute;" onclick="openNav()">&#9776; open</span>
 
-			
-		</div> -->
-
-		<script>
-			function openNav() {
-			  document.getElementById("mySidenav").style.width = "250px";
-			}
-			
-			function closeNav() {
-			  document.getElementById("mySidenav").style.width = "0";
-			}
-		</script>
-
-
+		<div id="container"></div>
 		<div id="menu">
-			<button id="table">ANM1</button>
+			<!-- <button id="table">ANM1</button>
 			<button id="sphere">ANM2</button>
 			<button id="helix">ANM3</button>
-			<button id="grid">ANM4</button>
+			<button id="grid">ANM4</button> -->
 		</div>
 		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> ar - hit test<br/>(Chrome Android 81+sound2)
+			<p id="Su Kuyusu Demo"></p>
+			
 		</div>
 
 		<!-- Import maps polyfill -->
@@ -185,6 +199,15 @@
 			}
 		</script>
 
+		<section id="loading-screen">
+			<p id="loaded"></p>
+			<div id="loader"></div>
+			<div class="Progressbar">
+				<div class="Progressbar__value"></div>
+				<progress value="0" max="100">100%</progress>
+			</div>
+		 </section>
+
 		<script type="module">
 
 			import * as THREE from 'three';
@@ -196,11 +219,12 @@
 			import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
 			import { RGBELoader } from './jsm/loaders/RGBELoader.js';
 			import { CSS3DRenderer, CSS3DObject } from './jsm/renderers/CSS3DRenderer.js';
+			import { OBJLoader } from './jsm/loaders/OBJLoader.js';
 			import Stats from './jsm/libs/stats.module.js'
 
 			let container;
-			let container2;
-			let arbutton;
+			let totalNumberLoadingObjects = 4;
+			let totalNumberLoadedObjects = 0;
 			let textContainer1;
 			let updatedPositionX;
 			let updatedPositionY;
@@ -242,15 +266,83 @@
 			let state1 = true;
 			init();
 			animate();
-
+			// let progressValue;
+			// let progress;
+			
+			// function setValue(value) {
+			    
+			// 	progressValue.style.width =  `${value}%`;
+			// 	progress.value = value;
+			// };
+			
+			
 			function init() {
+				const progressValue = document.querySelector('.Progressbar__value');
+			    const progress = document.querySelector('progress');
+
+				progressValue.style.width =  `${0}%`;
+				progress.value = 0;
+				
+				cotdown()
 				document.body.appendChild(stats.dom)
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				container2 = document.createElement( 'div' );
-				document.body.appendChild( container2 );
+				var tag = document.createElement("p");
+				tag.setAttribute("id", "percentage");
+				var text2 = document.createTextNode("");
+				tag.appendChild(text2);
+				stats.dom.appendChild(tag);
 				
+				
+				const loadingManager = new THREE.LoadingManager( () => {
+					const loadingScreen = document.getElementById( 'loading-screen' );
+					//document.getElementById('looader').percentage = 'Status 1';
+
+					console.log("totalNumberLoadedObjects -> " + totalNumberLoadedObjects)
+					if(totalNumberLoadedObjects == 4){
+						loadingScreen.classList.add( 'fade-out' );
+						// optional: remove loader from DOM via event listener
+						loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
+					}
+				} );
+
+				
+
+				loadingManager.onStart = function (item, loaded, total) {
+					console.log('Loading startedddddddddd');
+					//setValue(0);
+				};
+
+				loadingManager.onLoad = function () {
+					console.log('Loading complete');     
+					const loadingScreen = document.getElementById( 'loading-screen' );
+					loadingScreen.classList.add( 'fade-out' );
+						// optional: remove loader from DOM via event listener
+					loadingScreen.addEventListener( 'transitionend', onTransitionEnd );       
+					//bar.destroy();
+				};
+
+				loadingManager.onProgress = function (item, loaded, total) {            
+					console.log(item, loaded, total);
+					console.log('Loaded:', Math.round(loaded / total * 100, 2) + '%')
+					document.getElementById("percentage").innerHTML = Math.round(loaded / total * 100, 2) + '%';
+					//setValue(Math.round(loaded / total * 100, 2));
+					progressValue.style.width =  `${Math.round(loaded / total * 100, 2)}%`;
+					progress.value = Math.round(loaded / total * 100, 2);
+					//progressValue.style.width = `${Math.round(loaded / total * 100, 2)}%'';
+  					//progress.value = Math.round(loaded / total * 100, 2);
+					//bar.animate(1.0);
+				};
+
+				loadingManager.onError = function (url) {
+					console.log('Error loading');
+				};
+
+				
+
+
+
 				scene = new THREE.Scene();
 
 				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
@@ -266,9 +358,10 @@
 				// create a global audio source
 				sound = new THREE.Audio( listener );
 				camera.add(sound)
+				//World space interaction annotation position update - Region
 
-
-				const texture = new THREE.TextureLoader().load( 'textures/reticle_hud.png' );
+				const texture = new THREE.TextureLoader(loadingManager).load( 'textures/reticle_hud.png' );
+				totalNumberLoadedObjects +=1;
 
 
 				const geometryP = new THREE.PlaneGeometry( 0.02, 0.02 );
@@ -280,10 +373,55 @@
 				
 				
 				scene.add(plane)
-				plane.visible =false;
 				// renderer = new CSS3DRenderer();
 				// renderer.setSize( window.innerWidth, window.innerHeight );
 				
+				var obj;
+
+				new RGBELoader()
+					.setPath( 'textures/equirectangular/' )
+					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
+
+						texture.mapping = THREE.EquirectangularReflectionMapping;
+
+						//scene.background = texture;
+						scene.environment = texture;
+
+						render();
+
+						// model
+
+						const loader = new GLTFLoader(loadingManager).setPath( 'models/gltf/' );
+						loader.load( 'Su_Kuyusu_03.gltf', function ( gltf ) {
+
+							gltf.scene.traverse(function (child) {
+							if (child.isMesh) {
+								let m = child
+								monkey = m
+								console.log('monkey ->' + monkey)
+								model = monkey;
+								}
+							
+							})
+						    model = gltf.scene;
+							obj = gltf.scene;
+							model.position.set( 0, 0, -3 );
+							model.scale.set( 0.006, 0.006, 0.006 );
+							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
+							//console.log(gltf.scene)
+							//cubes77.push(gltf.scene)
+							console.log(model)
+							onlodinen(model)
+							scene.add( model );
+							GlbObject = model ;
+							console.log('Default OBJ -> ' + GlbObject.name)
+							totalNumberLoadedObjects +=1;
+							render();
+
+						} );
+
+					} );
+
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -298,7 +436,7 @@
 				controls.addEventListener( 'change', render ); // use if there is no animation loop
 				controls.minDistance = 2;
 				controls.maxDistance = 10;
-				controls.target.set( 0, 0, - 1 );
+				controls.target.set( 0, 0, - 3 );
 				controls.update();
 
 //
@@ -320,118 +458,66 @@
 				});
 
 				textContainer1.add( text );
-
+				// textContainer1.scale.set(0,0,0)
 				
 
 				//.position.z = 0
 				// scene is a THREE.Scene (see three.js)
 				
 				scene.add( textContainer1 );
+				textContainer1.visible = false;
 
 				// This is typically done in the render loop :
 				ThreeMeshUI.update();
 				//
 			
-				let options = {
-					requiredFeatures: ['hit-test'],
-					optionalFeatures: ['dom-overlay']
-				}
 
-
-				// options.domOverlay = { root: document.getElementById('content')};
-
-				// document.body.appendChild( ARButton.createButton(renderer, options));
-
-
-				arbutton = ARButton.createButton(renderer, { 
-					requiredFeatures: ['hit-test'],
-					optionalFeatures: ['dom-overlay'],
-					domOverlay: { root: document.getElementById('container') } 
-				})
-				document.body.appendChild(arbutton);
-
-				//document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
 				//
 				raycaster = new THREE.Raycaster();
     			renderer.domElement.addEventListener( 'select', raycast, false );
 				
-				var obj;
-
-				new RGBELoader()
-					.setPath( 'textures/equirectangular/' )
-					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
-
-						texture.mapping = THREE.EquirectangularReflectionMapping;
-
-						//scene.background = texture;
-						scene.environment = texture;
-
-						render();
-
-						// model
-
-						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/glTF/' );
-						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
-
-							gltf.scene.traverse(function (child) {
-							if (child.isMesh) {
-								let m = child
-								monkey = m
-								console.log('monkey ->' + monkey)
-								model = monkey;
-								}
-							
-							})
-						    model = gltf.scene;
-							obj = gltf.scene;
-							model.position.set( 0, 0.5, -2 );
-							model.scale.set( 0.4, 0.4, 0.4 );
-							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
-							//console.log(gltf.scene)
-							//cubes77.push(gltf.scene)
-							console.log(model)
-							onlodinen(model)
-							scene.add( model );
-							GlbObject = model ;
-							console.log('Default OBJ -> ' + GlbObject.name)
-							
-							render();
-
-						} );
-
-					} );
-
-				const textureInfo = new THREE.TextureLoader().load( 'textures/info.png' );
-
-				const circlegeometry = new THREE.CircleGeometry( 0.08, 32 );
-				const material = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: textureInfo, side: THREE.FrontSide} ));
-				material.transparent = true;
-				//const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-				const circle = new THREE.Mesh( circlegeometry, material );
-				circle.position.set( 0, -1.2, -.6 );
-				circle.scale.set(0,0,0)
-				console.log('circle scale -> ' + circle.scale.x)
-				selectCircle1 = circle;
-				scene.add( circle );
 
 
-				// textObj = new Text()
-				
+					
+					// loadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
 
-				// // Set properties to configure:
-				// textObj.text = 'Hello world!'
-				// textObj.fontSize = 0.1
-				// textObj.position.z = -0.099
-				// textObj.position.x = 0
-				// textObj.position.y = 0
-				// textObj.color = 0x9966FF
+					// 	console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
 
-				// // Update the rendering:
-				// scene.add(textObj)
-				// textObj.sync()
-				
-				
+					// };
+
+					// loadingManager.onLoad = function ( ) {
+
+					// 	console.log( 'Loading complete!');
+
+					// };
+
+
+					// loadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
+
+					// 	console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+
+					// };
+
+					// loadingManager.onError = function ( url ) {
+
+					// 	console.log( 'There was an error loading ' + url );
+
+					// };
+
+					const textureInfo = new THREE.TextureLoader(loadingManager).load( 'textures/info.png' );
+					totalNumberLoadedObjects +=1;
+					const circlegeometry = new THREE.CircleGeometry( 0.08, 32 );
+					const material = new THREE.MeshBasicMaterial( new THREE.MeshBasicMaterial({map: textureInfo, side: THREE.FrontSide} ));
+					material.transparent = true;
+					//const material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+					const circle = new THREE.Mesh( circlegeometry, material );
+					circle.position.set( 0, 0, -.6 );
+					console.log('circle scale -> ' + circle.scale.x)
+					selectCircle1 = circle;
+					//scene.add( circle );
+
 				const buttonTable = document.getElementById( 'table' );
 				buttonTable.addEventListener( 'click', function () {
 					console.log('clicked | active obj -> ' + GlbObject + ' object name -> ' + GlbObject.name)
@@ -498,44 +584,11 @@
 				
 
 				
-//LANTERN
-				// new RGBELoader()
-				// .setPath( 'textures/equirectangular/' )
-				// .load( 'royal_esplanade_1k.hdr', function ( texture ) {
 
-				// 		texture.mapping = THREE.EquirectangularReflectionMapping;
 
-				// 		//scene.background = texture;
-				// 		scene.environment = texture;
 
-				// 		render();
 
-				// 		// model
 
-				// 		const loader = new GLTFLoader().setPath( 'models/gltf/Lantern/glTF/' );
-				// 		loader.load( 'Lantern.gltf', function ( gltf ) {
-				// 			const model = gltf.scene;
-				// 			model.position.set( -1, -1, -2 );
-				// 			model.scale.set( 0.1, 0.1, 0.1 );
-				// 			//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
-				// 			//console.log(gltf.scene)
-				// 			//cubes77.push(gltf.scene)
-				// 			console.log(model)
-
-				// 			scene.add( model );
-
-				// 			render();
-
-				// 		} );
-
-				// 	} );
-
-				// renderer.domElement.addEventListener("click", onclick, true);
-				// function onclick() {
-					
-
-				// }
-//LANTERN
 				
 				function onlodinen(modelobj){
 					console.log('onloadinen girildi')
@@ -587,11 +640,35 @@
 				//
 				var clock = new THREE.Clock();
 
+
+	
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
+			
+			
+			let number = 5;
+			// Set the date we're counting down to
+			function cotdown(){
+				var countDownDate = new Date("Jan 5, 2024 15:37:25").getTime();
 
+				// Update the count down every 1 second
+				var x = setInterval(function() {
 
+				number -= 1;
+
+				// Display the result in the element with id="demo"
+				document.getElementById("demo").innerHTML = number;
+;
+
+				// If the count down is finished, write some text
+				if (number < 0) {
+					textContainer1.visible = true;
+					clearInterval(x);
+					document.getElementById("demo").innerHTML = "EXPIRED";
+				}
+				}, 1000);
+			}
 			function raycast ( e ) {
 
 				mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
@@ -623,231 +700,15 @@
 					
 				}
 
-											// new TWEEN.Tween(intersects[ i ].object.scale)
-						// 	.to(
-						// 		{
-						// 			y: p.y + 3,
-						// 		},
-						// 		250
-						// 	)
-						// 	.easing(TWEEN.Easing.Cubic.Out)
-						// 	.onUpdate(() => render()) //this line is unnecessary if you are re-rendering within the animation loop
-						// 	.start()
-						// 	.onComplete(() => {
-						// 		new TWEEN.Tween(monkey.position)
-						// 			.to(
-						// 				{
-						// 					y: p.y + 1,
-						// 				},
-						// 				250
-						// 			)
-						// 			.easing(TWEEN.Easing.Bounce.Out)
-						// 			.onUpdate(() => render()) //this line is unnecessary if you are re-rendering within the animation loop
-						// 			.start()
-						// 	})
-					
-					
-					// new TWEEN.Tween(coords)
-					// .to({ x: cube.position.x, y: cube.position.y })
-					// .onUpdate(() =>
-					// 	camera.position.set(coords.x, coords.y, camera.position.z)
-					// )
-					// .start();
-					/*
-						An intersection has the following properties :
-							- object : intersected object (THREE.Mesh)
-							- distance : distance from camera to intersection (number)
-							- face : intersected face (THREE.Face3)
-							- faceIndex : intersected face index (number)
-							- point : intersection point (THREE.Vector3)
-							- uv : intersection point in the object's UV coordinates (THREE.Vector2)
-					*/
-				//}
+
 
 			}
-			function transformUIElement(duration){
-				const object = Cssobjects[0]
-				console.log('transformUIElement object pos x ' + object.position.x)
 
-				if(state1){
-					new TWEEN.Tween( object.position )
-						.to( { x: object.position.x, y: object.position.y, z: object.position.z }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-					new TWEEN.Tween( object.rotation )
-						.to( { x: 0 , y: 0 , z: 0},  duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-					state1 = false;
-				}
-				else{
-					new TWEEN.Tween( object.position )
-						.to( { x: 0, y: 0, z: -1 }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-					new TWEEN.Tween( object.rotation )
-						.to( { x: 0 , y: 0 , z: 0},  duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-					state1 = false;
-				}
-				
 			
-				new TWEEN.Tween( this )
-					.to( {}, duration * 2 )
-					.onUpdate( render )
-					.start();
-			}
-
-			function transform( activeObject, duration ) {
-				circleScaleAnm(selectCircle1,1000, isIntersectselectCircle1)
-				if(state1){
-					new TWEEN.Tween( activeObject.position )
-						.to( { x: activeObject.position.x-1, y: activeObject.position.y, z: activeObject.position.z-3 }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-					new TWEEN.Tween( activeObject.rotation )
-						.to( { x: 1 , y: 0 , z: 0},  duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-					state1 = false;
-				}
-				else{
-					new TWEEN.Tween( activeObject.position )
-						.to( { x: 0, y: 0, z: -1 }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-					new TWEEN.Tween( activeObject.rotation )
-						.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-					state1 = true;
-				}
-				
-				console.log('state1 -> ' + state1)
-			
-				new TWEEN.Tween( this )
-					.to( {}, duration * 2 )
-					.onUpdate( render )
-					.start();
-
-			}
-
-			function transform2( activeObject, duration ) {
-
-				new TWEEN.Tween( activeObject.position )
-						.to( { x: 0, y: 0, z: 0 }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-				new TWEEN.Tween( activeObject.rotation )
-					.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
-
-				new TWEEN.Tween( textObj.position )
-						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-				new TWEEN.Tween( textObj.rotation )
-					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
-
-				new TWEEN.Tween( this )
-					.to( {}, duration * 2 )
-					.onUpdate( render )
-					.start();
-
-			}
-
-			function transform3( activeObject, duration ) {
-
-				new TWEEN.Tween( activeObject.position )
-						.to( { x: activeObject.position.x , y: activeObject.position.y, z: activeObject.position.z - 4 }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-				new TWEEN.Tween( activeObject.rotation )
-					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
-
-				new TWEEN.Tween( textObj.position )
-						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-				new TWEEN.Tween( textObj.rotation )
-					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
-			
-					
-				new TWEEN.Tween( this )
-					.to( {}, duration * 2 )
-					.onUpdate( render )
-					.start();
-
-				}
-			function transform4( activeObject, duration ) {
-
-				new TWEEN.Tween( activeObject.position )
-						.to( { x: 1, y: 1, z: 0 }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-				new TWEEN.Tween( activeObject.rotation )
-					.to( { x: 1.570796461153735 , y: 0 , z: 0},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
-
-				new TWEEN.Tween( textObj.position )
-						.to( { x: activeObject.position.x, y: activeObject.position.y, z: activeObject.position.z }, duration )
-						.easing( TWEEN.Easing.Exponential.InOut )
-						.onUpdate( render )
-						.start();
-
-				new TWEEN.Tween( textObj.rotation )
-					.to( { x: activeObject.rotation.x , y: activeObject.rotation.y , z: activeObject.rotation.z},  duration )
-					.easing( TWEEN.Easing.Exponential.InOut )
-					.onUpdate( render )
-					.start();
-
-					
-
-				new TWEEN.Tween( this )
-					.to( {}, duration * 2 )
-					.onUpdate( render )
-					.start();
-
-				}
 
 			function circleScaleAnm( selectCircle1, duration, statingen ) {
 				console.log('circleScaleAnm ---> ' + selectCircle1.scale)
+
 				if(statingen){
 					//Load a sound and set it as the Audio object's buffer
 					audioLoader = new THREE.AudioLoader();
@@ -1074,7 +935,10 @@
 				renderer.render( scene, camera );
 
 			}
-
+			function onTransitionEnd( event ) {
+				const element = event.target;
+				element.remove();
+			}
 		</script>
 	</body>
 </html>
