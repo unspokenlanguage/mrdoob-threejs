@@ -469,8 +469,8 @@
 
 						// model
 
-						const loader = new GLTFLoader(loadingManager).setPath( 'models/gltf/DamagedHelmet/glTF/' );
-						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
+						const loader = new GLTFLoader(loadingManager).setPath( 'models/gltf/' );
+						loader.load( 'Su_Kuyusu_03.gltf', function ( gltf ) {
 
 							gltf.scene.traverse(function (child) {
 							if (child.isMesh) {
@@ -481,8 +481,8 @@
 							})
 						    model = gltf.scene;
 							obj = gltf.scene;
-							model.position.set( 0, 0.5, -3 );
-							model.scale.set( 0.01, 0.01, 0.01 );
+							model.position.set( 0, 0, -3 );
+							model.scale.set( 0.006, 0.006, 0.006 );
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
 							//console.log(gltf.scene)
 							//cubes77.push(gltf.scene)
@@ -517,7 +517,7 @@
             function animateHelmetOnloadComplete(duration)
             {
                 new TWEEN.Tween( GlbObject.scale )
-						.to( { x: 0.4, y: 0.4, z: 0.4 }, 1000 )
+						.to( { x: 0.01, y: 0.01, z: 0.01 }, 1000 )
 						.easing( TWEEN.Easing.Exponential.InOut )
 						.onUpdate( render )
 						.start();

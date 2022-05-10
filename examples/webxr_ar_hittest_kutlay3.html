@@ -295,7 +295,17 @@
 				stats.dom.appendChild(tag);
 				
 				
-				const loadingManager = new THREE.LoadingManager();
+				const loadingManager = new THREE.LoadingManager( () => {
+					const loadingScreen = document.getElementById( 'loading-screen' );
+					//document.getElementById('looader').percentage = 'Status 1';
+
+					console.log("totalNumberLoadedObjects -> " + totalNumberLoadedObjects)
+					if(totalNumberLoadedObjects == 4){
+						loadingScreen.classList.add( 'fade-out' );
+						// optional: remove loader from DOM via event listener
+						loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
+					}
+				} );
 
 				
 
