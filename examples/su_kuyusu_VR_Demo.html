@@ -236,6 +236,7 @@
 				flowY: 0.2
 			};
 			let totalNumberLoadingObjects = 4;
+			let cloudParticles = [], flash, rain, rainGeo, rainCount = 15000;
 			let totalNumberLoadedObjects = 0;
 			let textContainer1;
 			let updatedPositionX;
@@ -297,15 +298,15 @@
 				progress.value = 0;
 				
 				//cotdown()
-				document.body.appendChild(stats.dom)
-				container = document.createElement( 'div' );
-				document.body.appendChild( container );
+				// document.body.appendChild(stats.dom)
+				   container = document.createElement( 'div' );
+				// document.body.appendChild( container );
 
-				var tag = document.createElement("p");
-				tag.setAttribute("id", "percentage");
-				var text2 = document.createTextNode("");
-				tag.appendChild(text2);
-				stats.dom.appendChild(tag);
+				// var tag = document.createElement("p");
+				// tag.setAttribute("id", "percentage");
+				// var text2 = document.createTextNode("");
+				// tag.appendChild(text2);
+				// stats.dom.appendChild(tag);
 				
 				
 				const loadingManager = new THREE.LoadingManager( () => {
@@ -339,7 +340,7 @@
 				loadingManager.onProgress = function (item, loaded, total) {            
 					console.log(item, loaded, total);
 					console.log('Loaded:', Math.round(loaded / total * 100, 2) + '%')
-					document.getElementById("percentage").innerHTML = Math.round(loaded / total * 100, 2) + '%';
+					//document.getElementById("percentage").innerHTML = Math.round(loaded / total * 100, 2) + '%';
 					//setValue(Math.round(loaded / total * 100, 2));
 					progressValue.style.width =  `${Math.round(loaded / total * 100, 2)}%`;
 					progress.value = Math.round(loaded / total * 100, 2);
@@ -369,7 +370,8 @@
 				camera.add( listener );
 
 
-
+				
+				
 				// create a global audio source
 				// sound = new THREE.Audio( listener );
 				// camera.add(sound)
@@ -451,8 +453,12 @@
 
 					} );
 
-
+				//renderer.setClearColor(scene.fog.color);
+				
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+				scene.fog = new THREE.FogExp2(0x11111f, 0.002);
+      			renderer.setClearColor(scene.fog.color);
+
 				renderer.setPixelRatio( window.devicePixelRatio );
 				
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -461,6 +467,9 @@
 
 			    controls = new OrbitControls( camera, renderer.domElement );
 				document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+			
+
 
 				controls.addEventListener( 'change', render ); // use if there is no animation loop
 				controls.minDistance = 2;
@@ -502,7 +511,7 @@
 				//
 			
 
-				document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+				//document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
 				//
 				raycaster = new THREE.Raycaster();
