@@ -409,7 +409,7 @@
 							})
 						    model = gltf.scene;
 							obj = gltf.scene;
-							model.position.set( 0, -1.4, -3 );
+							model.position.set( 0, -1.4, -1 );
 							model.scale.set( 0.006, 0.006, 0.006 );
 							//mesh.quaternion.setFromRotationMatrix(; controller.matrixWorld );
 							//console.log(gltf.scene)
@@ -441,7 +441,7 @@
 				controls.minDistance = 2;
 				controls.maxDistance = 10;
 				
-				controls.target.set( 0, -1.4, - 3 );
+				controls.target.set( 0, -1.4, - 1 );
 				controls.update();
 
 //
@@ -616,7 +616,7 @@
 						const mesh = new THREE.Mesh( geometry, material );
 						reticle.matrix.decompose( mesh.position, mesh.quaternion, mesh.scale );
 						mesh.scale.y = Math.random() * 2 + 1;
-						scene.add( mesh );
+						//scene.add( mesh );
 					}
 
 					circleScaleAnm(selectCircle1, 1000, isIntersectselectCircle1)
@@ -640,7 +640,7 @@
 				reticle.material.transparent = true;
 						// set opacity to 50%
 				reticle.material.opacity = 0.5;  
-				scene.add( reticle );
+				//scene.add( reticle );
 
 				//
 				var clock = new THREE.Clock();
@@ -924,7 +924,7 @@
 
 							const hit = hitTestResults[ 0 ];
 
-							reticle.visible = true;
+							//.visible = true;
 							reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
 
 						} else {
