@@ -35,6 +35,7 @@
 			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 			import { Water } from './jsm/objects/Water.js';
 			import { Sky } from './jsm/objects/Sky.js';
+			import { ARButton } from './jsm/webxr/ARButton.js';
 
 			let container, stats;
 			let camera, scene, renderer;
@@ -95,7 +96,7 @@
 				// Skybox
 
 				const sky = new Sky();
-				sky.scale.setScalar( 10000 );
+				sky.scale.setScalar( 40000 );
 				scene.add( sky );
 
 				const skyUniforms = sky.material.uniforms;
@@ -130,11 +131,11 @@
 
 				//
 
-				const geometry = new THREE.BoxGeometry( 30, 30, 30 );
-				const material = new THREE.MeshStandardMaterial( { roughness: 0 } );
+				// const geometry = new THREE.BoxGeometry( 30, 30, 30 );
+				// const material = new THREE.MeshStandardMaterial( { roughness: 0 } );
 
-				mesh = new THREE.Mesh( geometry, material );
-				scene.add( mesh );
+				// mesh = new THREE.Mesh( geometry, material );
+				// scene.add( mesh );
 
 				//
 
@@ -146,6 +147,9 @@
 				controls.update();
 
 				//
+
+
+				document.body.appendChild( ARButton.createButton( renderer, { optionalFeatures: [ 'light-estimation' ] } ) );
 
 				stats = new Stats();
 				container.appendChild( stats.dom );
@@ -193,9 +197,9 @@
 
 				const time = performance.now() * 0.001;
 
-				mesh.position.y = Math.sin( time ) * 20 + 5;
-				mesh.rotation.x = time * 0.5;
-				mesh.rotation.z = time * 0.51;
+				// mesh.position.y = Math.sin( time ) * 20 + 5;
+				// mesh.rotation.x = time * 0.5;
+				// mesh.rotation.z = time * 0.51;
 
 				water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
 
